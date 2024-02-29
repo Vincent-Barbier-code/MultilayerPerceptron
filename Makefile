@@ -1,4 +1,4 @@
-.PHONY: help install train clean
+PLOTS_TYPE ?= all
 
 help:
 	@echo "Available commands:"
@@ -8,6 +8,7 @@ help:
 	@echo "  run        Run the application"
 	@echo "  train      Train the neural network model"
 	@echo "  test       Run the tests"
+	@echo "  plots      Create plots"
 	@echo "  clean      Clean up temporary files"
 
 install:
@@ -28,6 +29,18 @@ test:
 	@echo "Running the tests..."
 	PYTHONPATH=./src python3 -m pytest tests
 
+plots:
+	@echo "Creating plots..."
+	@mkdir -p plots
+	@mkdir -p plots/scatter_plots
+	@mkdir -p plots/heat_maps
+	python3 src/data_visualization/plots.py $(PLOTS_TYPE)
+
+%:
+	@:
+
 clean:
 	@echo "Cleaning up temporary files..."
+	@rm -rf plots
 
+.PHONY: help install train clean plots test run all
