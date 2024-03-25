@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 
-from terminal_display.print import print_error
+from terminal.print import print_error
 
 
 def extract_data(csv_file):
