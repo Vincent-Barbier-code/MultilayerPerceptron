@@ -2,8 +2,10 @@
 
 import matplotlib.pyplot as plt
 from alive_progress import alive_bar
-from data_processing import data_extractor as extractor
+import data_processing.data_extractor as extractor
 
+def test():
+    print("TEST")
 
 def plots(args):
     """Create different plots from a DataFrame"""

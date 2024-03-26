@@ -27,7 +27,7 @@ train:
 
 test:
 	@echo "Running the tests..."
-	PYTHONPATH=./src python3 -m pytest tests
+	PYTHONPATH=./src python3 -m pytest ./src/tests
 
 plots:
 	@echo "Creating plots..."

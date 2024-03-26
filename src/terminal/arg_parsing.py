@@ -3,6 +3,8 @@
 import argparse
 import subprocess
 import os
+import inspect
+import data_visualization as dv
 
 
 def execute(args):
@@ -20,19 +22,20 @@ def execute(args):
 
     for arg, func in commands.items():
         if getattr(args, arg):
-            func(args)
+            if len(inspect.signature(func).parameters) == 0:
+                func()  # Appelle la fonction sans arguments
+            else:
+                func(args)  # Appelle la fonction avec args comme argument
             break
-    else:
-        print("No valid command specified.")
-
+    
 def arg_parsing():
-    """Parse the arguments"""
+    """Pos.systemarse the arguments"""
     parser = argparse.ArgumentParser(
         prog='Multilayer Perceptron',
         description='An artificial neural networks with multiple layers \
         to predict whether a cancer is malignant or benign on a dataset of breast cancer diagnosis.')
 
-    parser.add_argument('--file', type=str, help='Path to the CSV file')
+    parser.add_argument('--file', type=str, help='Path to the CSV file', default='data/data.csv')
     parser.add_argument('--install', action='store_true', help='Install the required packages')
     parser.add_argument('--run', action='store_true', help='Run the program')
     parser.add_argument('--train', action='store_true', help='Train the neural network model')
@@ -49,10 +52,10 @@ def install():
     subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
 
 
-def run(arg):
+def run(args):
     """Run the program"""
     print("Running the program...")
-    subprocess.run(['python3', 'src/main.py', '--file', arg.file])
+    subprocess.run(['python3', 'src/main.py', '--file', args.file])
 
 
 def train(args):
@@ -61,13 +64,15 @@ def train(args):
     if args.file:
         subprocess.run(['python3', 'src/train.py', '--file', args.file])
     else:
-        print("No file specified for training. Use default training set.")
+        os.systemprint("No file specified for training. Use default training set.")
 
 
 def test():
     """Run the tests"""
     print("Running the tests...")
-    subprocess.run(['PYTHONPATH=./src', 'python3', '-m', 'pytest', 'tests'], shell=True)
+    subprocess.run(['python3', '-m', 'pytest', 'src/tests'])
+    # subprocess.run(['python3', 'src/tests/test_data_extractor.py'])
+
 
 
 def hm(args):
@@ -85,7 +90,9 @@ def sc(args):
     print("Creating scatter plots...")
     if args.file:
         create_dirs(['plots', 'plots/scatter_plots'])
-        subprocess.run(['python3', 'src/data_visualization/plots.py', 'sc', '--file', args.file])
+        # subprocess.run(['python3', 'src/data_visualization/plots.py', 'sc', '--file', args.file])
+        dv.plots('sc')
+
     else:
         print("No file specified for creating scatter plots. Use default csv file.")
 
