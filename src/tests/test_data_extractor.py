@@ -51,6 +51,4 @@ class TestDataExtractor(unittest.TestCase):
         result = extractor.extract_data("missing_file.csv")
 
         self.assertIsNone(result)
-
-    def zizi():
-        print("TERQWE")
+        

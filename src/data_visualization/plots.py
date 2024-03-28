@@ -4,9 +4,6 @@ import matplotlib.pyplot as plt
 from alive_progress import alive_bar
 import data_processing.data_extractor as extractor
 
-def test():
-    print("TEST")
-
 def plots(args):
     """Create different plots from a DataFrame"""
     csv_file = "data/data.csv"
@@ -54,7 +51,6 @@ def heat_map(dataframe):
     """Create a heat map from a DataFrame"""
     dataframe = dataframe.drop(columns=[0])
     dataframe = dataframe.drop(columns=range(12, 32))
-    print(dataframe)
     corr_matrix = dataframe.corr()
 
     fig, ax = plt.subplots(figsize=(7, 7))  # Créez une figure et des axes
