@@ -4,7 +4,6 @@ import argparse
 import subprocess
 import os
 import inspect
-import data_visualization as dv
 
 
 def execute(args):
@@ -73,6 +72,8 @@ def test():
 
 def hm(args):
     """Create heat maps"""
+    import data_visualization as dv
+    
     print("Creating heat maps...")
     if args.file:
         create_dirs(['plots', 'plots/heat_maps'])
@@ -82,6 +83,8 @@ def hm(args):
 
 def sc(args):
     """Create scatter plots"""
+    import data_visualization as dv
+    
     print("Creating scatter plots...")
     if args.file:
         create_dirs(['plots', 'plots/scatter_plots'])
