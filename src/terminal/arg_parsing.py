@@ -16,6 +16,8 @@ def execute(args: argparse.Namespace)-> None:
         'test': test,
         'sc': sc,
         'hm': hm,
+        'pp': pp,
+        'plot': plot,
         'clean': clean
     }
 
@@ -43,6 +45,8 @@ def arg_parsing() -> argparse.Namespace:
     parser.add_argument('--test', action='store_true', help='Run the tests')
     parser.add_argument('--sc', action='store_true', help='Create scatter plots')
     parser.add_argument('--hm', action='store_true', help='Create heat maps')
+    parser.add_argument('--pp', action='store_true', help='Create pair plots')
+    parser.add_argument('--plot', action='store_true', help='Create all plots')
     parser.add_argument('--clean', action='store_true', help='Clean up temporary files')
 
     return parser.parse_args()
@@ -70,6 +74,19 @@ def test() -> None:
     print("Running the tests...")
     subprocess.run(['python3', '-m', 'pytest', 'src/tests'])
 
+def plot(args: argparse.Namespace) -> None:
+    """Create all plots"""
+    import data_visualization as dv
+
+    print("Creating all plots...")
+    if args.file:
+        create_dirs(['plots', 'plots/scatter_plots', 'plots/heat_maps', 'plots/pair_plots'])
+        dv.plots('hm')
+        dv.plots('sc')
+        dv.plots('pp')
+    else:
+        print("No file specified for creating plots. Use default csv file.")
+
 def hm(args: argparse.Namespace) -> None:
     """Create heat maps"""
     import data_visualization as dv
@@ -91,6 +108,17 @@ def sc(args: argparse.Namespace) -> None:
         dv.plots('sc')
     else:
         print("No file specified for creating scatter plots. Use default csv file.")
+
+def pp(args: argparse.Namespace) -> None:
+    """Create pair plots"""
+    import data_visualization as dv
+    
+    print("Creating pair plots...")
+    if args.file:
+        create_dirs(['plots', 'plots/pair_plots'])
+        dv.plots('pp')
+    else:
+        print("No file specified for creating pair plots. Use default csv file.")
 
 def clean() -> None:
     """Clean up temporary files"""

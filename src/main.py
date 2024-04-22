@@ -10,7 +10,7 @@ def main() -> None:
 
     args = arg_parsing()
     execute(args)
-    dataframe = extractor.extract_data("../data/data.csv")
+    dataframe = extractor.extract_data("data/data.csv")
     if args.random and args.run:
         train_data = set_random_data(dataframe)[0]
         validation_data = set_random_data(dataframe)[1]

@@ -39,7 +39,7 @@ def column_names(i: int) -> str:
         10: "symmetry",
         11: "fractal dimension",
     }
-    return switcher.get(i, "other column")
+    return switcher.get(i % 10)
 
 
 def all_column_names() -> list[str]:

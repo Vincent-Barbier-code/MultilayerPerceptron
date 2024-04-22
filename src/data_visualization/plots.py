@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 from alive_progress import alive_bar
 import data_processing.data_extractor as extractor
+import seaborn as sns
 
 def plots(args: str) -> None:
     """Create different plots from a DataFrame"""
@@ -18,6 +19,8 @@ def plots(args: str) -> None:
         create_scatter_plots(dataframe_normalized)
     elif args == "hm":
         heat_map(dataframe_normalized)
+    elif args == "pp":
+        pair_plot(dataframe_normalized)
     else:
         print("Invalid argument")
 
@@ -49,19 +52,22 @@ def create_scatter_plots(dataframe: list) -> None:
 
 def heat_map(dataframe: list) -> None:
     """Create a heat map from a DataFrame"""
-    dataframe = dataframe.drop(columns=[0])
-    dataframe = dataframe.drop(columns=range(12, 32))
-    corr_matrix = dataframe.corr()
 
-    fig, ax = plt.subplots(figsize=(7, 7))  # Créez une figure et des axes
+    dataframe = dataframe.drop(columns=[0])
+    dataframe = dataframe.drop(columns=range(2, 22))
+    # dataframe = dataframe.drop(columns=range(22, 31))
+    print(dataframe)
+
+    corr_matrix = dataframe.corr() 
+
+    fig, ax = plt.subplots(figsize=(7, 7))
     cax = ax.matshow(
         corr_matrix, cmap="viridis"
-    )  # Utilisez ax.matshow au lieu de plt.imshow
+    )
     fig.colorbar(cax)
 
-    plt.title("Correlation between Diagnosis and Features")
+    plt.title("Correlation between Mean cell nucleus Features")
 
-    # Utilisez plt.xticks et plt.yticks pour définir les labels des axes
     plt.xticks(ticks=range(corr_matrix.shape[1]), labels=extractor.all_column_names())
     plt.yticks(ticks=range(corr_matrix.shape[0]), labels=extractor.all_column_names())
 
@@ -83,3 +89,9 @@ def heat_map(dataframe: list) -> None:
     plt.tight_layout()
     plt.savefig("plots/heat_maps/heatmap.png")
     plt.clf()
+
+def pair_plot(dataframe: list) -> None:
+    """Create a pair plot from a DataFrame"""
+    sns.pairplot(dataframe, hue=1)
+    plt.savefig("plots/pair_plots/pairplot.png")
+    plt.clf()                                                                                                                                                                                                                                                                                          
