@@ -6,7 +6,7 @@ import pandas as pd
 from terminal.print import print_error
 
 
-def extract_data(csv_file):
+def extract_data(csv_file: str) -> pd.DataFrame:
     """Extract data from a csv file"""
 
     try:
@@ -24,7 +24,7 @@ def extract_data(csv_file):
     return data
 
 
-def column_names(i):
+def column_names(i: int) -> str:
     """Return the column names of a DataFrame"""
     switcher = {
         0: "diagnosis",
@@ -42,7 +42,7 @@ def column_names(i):
     return switcher.get(i, "other column")
 
 
-def all_column_names():
+def all_column_names() -> list[str]:
     """Return all column names of a DataFrame"""
     return [
         "diagnosis",
@@ -59,13 +59,13 @@ def all_column_names():
     ]
 
 
-def normalize_data(data):
+def normalize_data(data: pd.Series) -> pd.Series:
     """Normalize the data"""
     data = (data - data.min()) / (data.max() - data.min())
     return data
 
 
-def normalize_dataframe(dataframe):
+def normalize_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Normalize the dataframe"""
     numeric_columns = dataframe.select_dtypes(include=[np.number]).columns
     for column in numeric_columns:

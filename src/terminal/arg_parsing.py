@@ -6,7 +6,7 @@ import os
 import inspect
 
 
-def execute(args):
+def execute(args: argparse.Namespace)-> None:
     """Execute the command"""
 
     commands = {
@@ -27,7 +27,7 @@ def execute(args):
                 func(args)  # Appelle la fonction avec args comme argument
             break
     
-def arg_parsing():
+def arg_parsing() -> argparse.Namespace:
     """Parse the arguments passed to the program"""
 
     parser = argparse.ArgumentParser(
@@ -47,17 +47,17 @@ def arg_parsing():
 
     return parser.parse_args()
 
-def install():
+def install() -> None:
     """Install the required packages"""
     print("Installing the required packages...")
     subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
 
-def run(args):
+def run(args: argparse.Namespace) -> None:
     """Run the program"""
     print("Running the program...")
     subprocess.run(['python3', 'src/main.py', '--file', args.file])
 
-def train(args):
+def train(args: argparse.Namespace) -> None:
     """Train the neural network model"""
     print("Training the neural network model...")
     if args.file:
@@ -65,12 +65,12 @@ def train(args):
     else:
         print("No file specified for training. Use default training set.")
 
-def test():
+def test() -> None:
     """Run the tests"""
     print("Running the tests...")
     subprocess.run(['python3', '-m', 'pytest', 'src/tests'])
 
-def hm(args):
+def hm(args: argparse.Namespace) -> None:
     """Create heat maps"""
     import data_visualization as dv
     
@@ -81,7 +81,7 @@ def hm(args):
     else:
         print("No file specified for creating heat maps. Use default csv file.")
 
-def sc(args):
+def sc(args: argparse.Namespace) -> None:
     """Create scatter plots"""
     import data_visualization as dv
     
@@ -92,7 +92,7 @@ def sc(args):
     else:
         print("No file specified for creating scatter plots. Use default csv file.")
 
-def clean():
+def clean() -> None:
     """Clean up temporary files"""
     print("Cleaning up temporary files...")
     subprocess.run(['rm', '-rf', 'plots'])

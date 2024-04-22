@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from alive_progress import alive_bar
 import data_processing.data_extractor as extractor
 
-def plots(args):
+def plots(args: str) -> None:
     """Create different plots from a DataFrame"""
     csv_file = "data/data.csv"
     extracted_data = extractor.extract_data(csv_file)
@@ -22,7 +22,7 @@ def plots(args):
         print("Invalid argument")
 
 
-def scatter_plot(dataframe, x, y, z):
+def scatter_plot(dataframe: list, x: int, y: int, z: int) -> None:
     """Create a scatter plot from a DataFrame"""
     x_column = extractor.column_names(x)
     y_column = extractor.column_names(y)
@@ -34,7 +34,7 @@ def scatter_plot(dataframe, x, y, z):
     plt.clf()
 
 
-def create_scatter_plots(dataframe):
+def create_scatter_plots(dataframe: list) -> None:
     """Create scatter plots from a DataFrame"""
     z = 0
     total_plots = 36
@@ -47,7 +47,7 @@ def create_scatter_plots(dataframe):
                 load_bar()  # pylint: disable=E1102
 
 
-def heat_map(dataframe):
+def heat_map(dataframe: list) -> None:
     """Create a heat map from a DataFrame"""
     dataframe = dataframe.drop(columns=[0])
     dataframe = dataframe.drop(columns=range(12, 32))

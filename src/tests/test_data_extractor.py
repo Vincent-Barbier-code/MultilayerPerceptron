@@ -11,7 +11,7 @@ from data_processing import data_extractor as extractor
 class TestDataExtractor(unittest.TestCase):
     """Tests for the data_extractor module."""
 
-    def test_extract_data(self):
+    def test_extract_data(self) -> None:
         """Test the extract_data function"""
         # Create a test CSV file
         test_csv = "test_data.csv"
@@ -37,7 +37,7 @@ class TestDataExtractor(unittest.TestCase):
         # Remove the test file
         os.remove(test_csv)
 
-    def test_extract_data_empty_file(self):
+    def test_extract_data_empty_file(self) -> None:
         """Test the extract_data function with an empty file"""
         test_csv = "empty_test_data.csv"
         open(test_csv, "w", encoding="utf-8").close()
@@ -46,7 +46,7 @@ class TestDataExtractor(unittest.TestCase):
         self.assertIsInstance(result, pd.DataFrame)
         os.remove(test_csv)
 
-    def test_extract_data_missing_file(self):
+    def test_extract_data_missing_file(self) -> None:
         """Test the extract_data function with a missing file"""
         result = extractor.extract_data("missing_file.csv")
 
