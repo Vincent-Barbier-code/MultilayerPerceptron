@@ -42,6 +42,7 @@ def create_scatter_plots(dataframe: list) -> None:
     z = 0
     total_plots = 36
 
+    plt.figure() # pour alive bar
     with alive_bar(total_plots, bar="smooth", title="scatter_plots") as load_bar:
         for i in range(2, 11):
             for y in range(i + 1, 11):
@@ -54,9 +55,8 @@ def heat_map(dataframe: list) -> None:
     """Create a heat map from a DataFrame"""
 
     dataframe = dataframe.drop(columns=[0])
-    dataframe = dataframe.drop(columns=range(2, 22))
-    # dataframe = dataframe.drop(columns=range(22, 31))
-    print(dataframe)
+    dataframe = dataframe.drop(columns=[1])
+    dataframe = dataframe.drop(columns=range(12, 31))
 
     corr_matrix = dataframe.corr() 
 
