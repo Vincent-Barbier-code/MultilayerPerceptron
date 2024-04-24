@@ -15,11 +15,9 @@ def relu(X: np.ndarray) -> np.ndarray:
 	return (np.maximum(0, X))
 
 
-def weight_initialization(N: int, weights_init: str, seed: bool) -> np.ndarray:
+def weight_initialization(N: int, weights_init: str, seed: int=None) -> np.ndarray:
 	
-	seed if True else None 
-
-	np.random.seed(seed)
+	np.random.seed(seed) if seed is not None else None 
 	match weights_init:
 		case "random":
 			W = np.random.rand(N)
@@ -33,7 +31,7 @@ def weight_initialization(N: int, weights_init: str, seed: bool) -> np.ndarray:
 
 class Perceptron:
 	
-	def __init__(self, N: int, alpha: float=0.1, bias: float=0, weights_init: str="heNormal", seed: bool=True) -> None:
+	def __init__(self, N: int, alpha: float=0.1, bias: float=0, weights_init: str="heNormal", seed: int=0) -> None:
 		
 		self.alpha = alpha
 		self.bias = bias
@@ -56,5 +54,6 @@ class Perceptron:
 	def step(self, X: np.ndarray) -> np.ndarray:
 
 		Wsum = np.dot(X, self.W) + self.bias
-
-		return(Wsum)
+		y = self.activation(Wsum)
+		return(y)
+	
