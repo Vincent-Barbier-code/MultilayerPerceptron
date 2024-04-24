@@ -20,8 +20,8 @@ def main() -> None:
 
     perceptron1 = Perceptron((dataframe)[1].size)
     
-    perceptron1.activation((dataframe)[2], "softmax")
-
+    perceptron1.activation((dataframe)[2])
+    perceptron1.step((dataframe)[2])
 
 if __name__ == "__main__":
     main()
