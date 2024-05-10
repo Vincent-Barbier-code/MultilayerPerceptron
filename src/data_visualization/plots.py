@@ -2,47 +2,47 @@
 
 import matplotlib.pyplot as plt
 from alive_progress import alive_bar
-import data_processing.data_extractor as extractor
+from data_processing import extract as extract
 import seaborn as sns
+from pandas import DataFrame
+
 
 def plots(args: str) -> None:
     """Create different plots from a DataFrame"""
     csv_file = "data/data.csv"
-    extracted_data = extractor.extract_data(csv_file)
+    extracted_data = extract.Extract(csv_file)
     if extracted_data is None:
         return
 
-    dataframe_normalized = extractor.normalize_dataframe(extracted_data)
-    dataframe_normalized[1] = dataframe_normalized[1].map({"M": 1, "B": 0})
+    dataframe_standardize = extracted_data.standardize()
+    dataframe_standardize[1] = dataframe_standardize[1].map({"M": 1, "B": 0})
 
     if args == "sc":
-        create_scatter_plots(dataframe_normalized)
+        create_scatter_plots(dataframe_standardize)
     elif args == "hm":
-        heat_map(dataframe_normalized)
+        heat_map(dataframe_standardize)
     elif args == "pp":
-        pair_plot(dataframe_normalized)
+        pair_plot(dataframe_standardize)
     else:
         print("Invalid argument")
 
 
-def scatter_plot(dataframe: list, x: int, y: int, z: int) -> None:
+def scatter_plot(dataframe: DataFrame, x: int, y: int, z: int) -> None:
     """Create a scatter plot from a DataFrame"""
-    x_column = extractor.column_names(x)
-    y_column = extractor.column_names(y)
     colors = dataframe[1]
     plt.scatter(x=dataframe[x], y=dataframe[y], c=colors)
-    plt.xlabel(x_column)
-    plt.ylabel(y_column)
+    plt.xlabel(dataframe.columns[x])
+    plt.ylabel(dataframe.columns[y])
     plt.savefig("plots/scatter_plots/scaterplot" + str(z) + ".png")
     plt.clf()
 
 
-def create_scatter_plots(dataframe: list) -> None:
+def create_scatter_plots(dataframe: DataFrame) -> None:
     """Create scatter plots from a DataFrame"""
     z = 0
     total_plots = 36
 
-    plt.figure() # pour alive bar
+    plt.figure()  # pour alive bar
     with alive_bar(total_plots, bar="smooth", title="scatter_plots") as load_bar:
         for i in range(2, 11):
             for y in range(i + 1, 11):
@@ -51,25 +51,23 @@ def create_scatter_plots(dataframe: list) -> None:
                 load_bar()  # pylint: disable=E1102
 
 
-def heat_map(dataframe: list) -> None:
+def heat_map(dataframe: DataFrame) -> None:
     """Create a heat map from a DataFrame"""
 
     dataframe = dataframe.drop(columns=[0])
     dataframe = dataframe.drop(columns=[1])
     dataframe = dataframe.drop(columns=range(12, 31))
 
-    corr_matrix = dataframe.corr() 
+    corr_matrix = dataframe.corr()
 
     fig, ax = plt.subplots(figsize=(7, 7))
-    cax = ax.matshow(
-        corr_matrix, cmap="viridis"
-    )
+    cax = ax.matshow(corr_matrix, cmap="viridis")
     fig.colorbar(cax)
 
     plt.title("Correlation between Mean cell nucleus Features")
 
-    plt.xticks(ticks=range(corr_matrix.shape[1]), labels=extractor.all_column_names())
-    plt.yticks(ticks=range(corr_matrix.shape[0]), labels=extractor.all_column_names())
+    plt.xticks(ticks=range(corr_matrix.shape[1]))
+    plt.yticks(ticks=range(corr_matrix.shape[0]))
 
     ax.xaxis.tick_bottom()
 
@@ -90,8 +88,9 @@ def heat_map(dataframe: list) -> None:
     plt.savefig("plots/heat_maps/heatmap.png")
     plt.clf()
 
-def pair_plot(dataframe: list) -> None:
+
+def pair_plot(dataframe: DataFrame) -> None:
     """Create a pair plot from a DataFrame"""
-    sns.pairplot(dataframe, hue=1)
+    sns.pairplot(dataframe, hue="1")
     plt.savefig("plots/pair_plots/pairplot.png")
-    plt.clf()                                                                                                                                                                                                                                                                                          
+    plt.clf()
