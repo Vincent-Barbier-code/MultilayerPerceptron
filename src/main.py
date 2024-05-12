@@ -13,7 +13,7 @@ def main() -> None:
     args = arg_parsing()
     execute(args)
 
-    dataframe = extract.Extract("../data/data.csv", header=None).data
+    dataframe = extract.Extract(args.file, header=None).data
 
     df_features = dataframe.copy()
     df_features.drop(dataframe.columns[[0, 1]], axis=1, inplace=True)
@@ -31,8 +31,7 @@ def main() -> None:
     neural.add_layer(24, "sigmoid")
     neural.add_layer(24, "sigmoid")
     neural.add_layer(1, "relu")
-    predicted_labels = neural.forward(df_features.values)
-    neural.cost(dataframe.values, predicted_labels)
+    neural.train(df_features, dataframe)
 
 
 if __name__ == "__main__":

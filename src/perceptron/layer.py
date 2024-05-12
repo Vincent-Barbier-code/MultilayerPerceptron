@@ -102,7 +102,7 @@ class Layer:
         self.bias = np.zeros(Next)
         self.f_activation = f_activation
 
-    def forward(self, X) -> np.ndarray:
+    def forward(self, X: np.ndarray) -> np.ndarray:
         """Performs the forward pass for the layer.
 
         Args:
@@ -111,7 +111,11 @@ class Layer:
         Returns:
             np.ndarray: The output array after applying the activation function.
         """
-        print("X = " + str(X) + "\nW = " + str(self.W))
+        if self.Previous == 0:
+            self.Previous = X.shape[1]
+            self.W = weight_initialization(self.Next, self.Previous, "heUniform")
+
+        self.input = X
         Z = np.dot(X, self.W) + self.bias
         match self.f_activation:
             case "sigmoid":
@@ -125,34 +129,24 @@ class Layer:
 
         return X
 
-    # def backward(self, dA: np.ndarray, learning_rate: float) -> np.ndarray:
-    #     """Performs the backward pass for the layer.
+    def backward(self, P: np.ndarray, cost: float, learning_rate: float) -> np.ndarray:
+        """Performs the backward pass for the layer.
 
-    #     Args:
-    #         dA (np.ndarray): The derivative of the cost function with respect to the output of the layer.
-    #         learning_rate (float): The learning rate.
+        Args:
+            derivateGradient (np.ndarray): The gradient of the loss function.
+            learning_rate (float): The learning rate.
 
-    #     Returns:
-    #         np.ndarray: The derivative of the cost function with respect to the input of the layer.
-    #     """
+        Returns:
+            np.ndarray: The gradient of the loss function.
+        """
 
-    #     # Compute the derivative of the activation function
-    #     if self.f_activation == "sigmoid":
-    #         dZ = dA * sigmoid(self.X) * (1 - sigmoid(self.X))
-    #     elif self.f_activation == "relu":
-    #         dZ = np.where(self.X > 0, dA, 0)
-    #     else:
-    #         raise ValueError(f"Invalid activation function: {self.f_activation}")
+        dZ = np.dot(cost, self.W.T)
 
-    #     # Compute the derivatives with respect to the weights and the bias
-    #     dW = np.dot(self.X.T, dZ)
-    #     db = np.sum(dZ, axis=0)
+        dW = np.dot(P.T, cost)
+        db = np.sum(cost, axis=0, keepdims=True)
 
-    #     # Update the weights and the bias
-    #     self.W -= learning_rate * dW
-    #     self.bias -= learning_rate * db
+        # Update the weights and biases
+        self.W -= learning_rate * dW
+        self.bias -= learning_rate * db
 
-    #     # Compute the derivative with respect to the input
-    #     dA_prev = np.dot(dZ, self.W.T)
-
-    #     return dA_prev
+        return dZ

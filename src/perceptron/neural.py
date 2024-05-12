@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from perceptron.layer import Layer
 
@@ -48,32 +49,43 @@ class Neural:
 
         return X
 
-    def cost(self, Y: np.ndarray, P: np.ndarray) -> float:
+    def cost(self, input: np.ndarray, Y: np.ndarray) -> np.ndarray:
         """Computes the cost function for the neural network.
 
         Args:
-            Y (np.ndarray): The true labels.
             P (np.ndarray): The predicted labels.
+            Y (np.ndarray): The true labels.
 
         Returns:
             float: The cost of the neural network."""
-
-        print("True label = " + str(Y) + ";\n" + "Predicted label = " + str(P))
-        Z = float(
-            -1 / self.layers[-1].Next * np.sum(Y * np.log(P) + (1 - Y) * np.log(1 - P))
+        epsilon = 1e-9  # to avoid log(0)
+        input = np.clip(input, epsilon, 1 - epsilon)
+        Y = Y.astype(float)
+        Z = (
+            -1
+            / len(Y)
+            * np.sum(
+                Y * np.log(input + epsilon) + (1 - Y) * np.log(1 - input + epsilon),
+                axis=0,
+            )
         )
-        print(Z)
         return Z
 
-    # def backward(self, X: np.ndarray, Y: np.ndarray) -> None:
-    #     """Backward propagation through the neural network.
+    def backward(self, P: np.ndarray, Y: np.ndarray) -> np.ndarray:
+        """Backward propagation through the neural network.
 
-    #     Args:
-    #         X (np.ndarray): The input data.
-    #         Y (np.ndarray): The true labels."""
+        Args:
+            P (np.ndarray): The predicted labels.
+            Y (np.ndarray): The true labels."""
 
-    #     P = self.forward(X)
-    #     dA = P - Y
+        cost = self.cost(P, Y)
+        for layer in reversed(self.layers):
+            cost = layer.backward(layer.input, cost, self.learning_rate)
 
-    #     for layer in reversed(self.layers):
-    #         dA = layer.backward(dA, self.learning_rate)
+        return cost
+
+    def train(self, X: np.ndarray, Y: np.ndarray) -> None:
+        """Train the neural network."""
+
+        P = self.forward(X)
+        self.backward(P, Y)
