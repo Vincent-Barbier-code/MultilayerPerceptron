@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 from perceptron.layer import Layer
 
@@ -18,10 +17,8 @@ class Neural:
         self.alpha = alpha
         self.epoch = epoch
         self.batch_size = batch_size
-        self.learning_rate = learning_rate
-        self.loss = []
-        self.layers = []  # type: list[Layer]
-        self.accuracy = []
+        self.learning_rate = learning_rate 
+        self.layers: list[Layer] = []
 
     def add_layer(
         self,
@@ -39,50 +36,48 @@ class Neural:
         """Forward propagation through the neural network.
 
         Args:
-            X (np.ndarray): The input data.
+            X (np.ndarray): The Z data.
 
         Returns:
             np.ndarray: The output of the neural network."""
 
         for layer in self.layers:
-            X = layer.forward(X)
+            layer.forward(X)
+        return layer.A
 
-        return X
-
-    def cost(self, input: np.ndarray, Y: np.ndarray) -> np.ndarray:
-        """Computes the cost function for the neural network.
+    def loss(self, P: np.ndarray, Y: np.ndarray) -> float:
+        """Computes the loss function for the neural network.
 
         Args:
             P (np.ndarray): The predicted labels.
             Y (np.ndarray): The true labels.
 
         Returns:
-            float: The cost of the neural network."""
+            float: The loss of the neural network."""
         epsilon = 1e-9  # to avoid log(0)
-        input = np.clip(input, epsilon, 1 - epsilon)
+
         Y = Y.astype(float)
-        Z = (
+        loss = (
             -1
             / len(Y)
             * np.sum(
-                Y * np.log(input + epsilon) + (1 - Y) * np.log(1 - input + epsilon),
+                Y * np.log(P + epsilon) + (1 - Y) * np.log(1 - P + epsilon),
                 axis=0,
             )
         )
-        return Z
+        return loss
 
-    def backward(self, P: np.ndarray, Y: np.ndarray) -> np.ndarray:
+    def backward(self, P: np.ndarray, Y: np.ndarray) -> None:
         """Backward propagation through the neural network.
 
         Args:
             P (np.ndarray): The predicted labels.
             Y (np.ndarray): The true labels."""
 
-        cost = self.cost(P, Y)
+        loss = self.loss(P, Y)
+        gradient = P - Y
         for layer in reversed(self.layers):
-            cost = layer.backward(layer.input, cost, self.learning_rate)
-
-        return cost
+            gradient = layer.backward(loss, self.learning_rate, gradient)
 
     def train(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Train the neural network."""

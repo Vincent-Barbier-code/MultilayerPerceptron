@@ -4,7 +4,6 @@ from terminal.arg_parsing import arg_parsing
 from terminal.arg_parsing import execute
 from data_processing import extract
 from perceptron.neural import Neural
-import pandas as pd
 
 
 def main() -> None:
@@ -31,7 +30,7 @@ def main() -> None:
     neural.add_layer(24, "sigmoid")
     neural.add_layer(24, "sigmoid")
     neural.add_layer(1, "relu")
-    neural.train(df_features, dataframe)
+    neural.train(df_features.values, dataframe.values)
 
 
 if __name__ == "__main__":

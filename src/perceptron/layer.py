@@ -102,7 +102,7 @@ class Layer:
         self.bias = np.zeros(Next)
         self.f_activation = f_activation
 
-    def forward(self, X: np.ndarray) -> np.ndarray:
+    def forward(self, X: np.ndarray) -> None:
         """Performs the forward pass for the layer.
 
         Args:
@@ -115,21 +115,23 @@ class Layer:
             self.Previous = X.shape[1]
             self.W = weight_initialization(self.Next, self.Previous, "heUniform")
 
-        self.input = X
-        Z = np.dot(X, self.W) + self.bias
+        # Z is the output layer before
+        self.Z = X
+
+        self.A = np.dot(X, self.W) + self.bias
         match self.f_activation:
             case "sigmoid":
-                X = sigmoid(Z)
+                X = sigmoid(self.A)
             case "softmax":
-                X = softmax(Z)
+                X = softmax(self.A)
             case "relu":
-                X = relu(Z)
+                X = relu(self.A)
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
 
-        return X
+        self.A = X
 
-    def backward(self, P: np.ndarray, cost: float, learning_rate: float) -> np.ndarray:
+    def backward(self, loss: float, learning_rate: float, gradient: np.ndarray) -> np.ndarray:
         """Performs the backward pass for the layer.
 
         Args:
@@ -140,13 +142,8 @@ class Layer:
             np.ndarray: The gradient of the loss function.
         """
 
-        dZ = np.dot(cost, self.W.T)
+        
 
-        dW = np.dot(P.T, cost)
-        db = np.sum(cost, axis=0, keepdims=True)
 
-        # Update the weights and biases
-        self.W -= learning_rate * dW
-        self.bias -= learning_rate * db
 
-        return dZ
+        return gradient
