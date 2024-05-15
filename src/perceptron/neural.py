@@ -24,7 +24,7 @@ class Neural:
         self,
         Next: int = 0,
         f_activation: str = "sigmoid",
-        weights_init: str = "zeros",
+        weights_init: str = "heUniform",
     ) -> None:
         if len(self.layers) == 0:
             layer = Layer(Next, 0, f_activation, weights_init)
@@ -74,11 +74,11 @@ class Neural:
             P (np.ndarray): The predicted labels.
             Y (np.ndarray): The true labels."""
 
-        loss = self.loss(P, Y)
+        # loss = self.loss(P, Y)
         gradient = P - Y
         for layer in reversed(self.layers):
-            gradient = layer.backward(loss, self.learning_rate, gradient)
-        
+            gradient = layer.backward(self.learning_rate, gradient)
+
     def accuracy(self, X: np.ndarray, Y: np.ndarray) -> float:
         """Compute the accuracy of the neural network.
 
@@ -94,7 +94,6 @@ class Neural:
 
         return accuracy
 
-
     def train(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Train the neural network."""
 
@@ -107,6 +106,6 @@ class Neural:
                 self.Y = Y[j : j + self.batch_size]
                 P = self.forward(self.X)
                 self.backward(P, self.Y)
-        
-            accuracy = self.accuracy(self.X, self.Y)
-            print(f"Accuracy: {accuracy}")      
+
+            accuracy = self.accuracy(X, Y)
+            print(f"Accuracy: {accuracy}")
