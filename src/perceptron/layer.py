@@ -1,3 +1,4 @@
+import re
 import numpy as np
 
 
@@ -40,6 +41,32 @@ def relu(X: np.ndarray) -> np.ndarray:
     """
 
     return np.maximum(0, X)
+
+
+def d_sigmoid(X: np.ndarray) -> np.ndarray:
+    """Computes the derivative of the sigmoid function.
+
+    Args:
+        X (np.ndarray): Input array.
+
+    Returns:
+        np.ndarray: Output array after applying the derivative of the sigmoid function.
+    """
+
+    return sigmoid(X) * (1 - sigmoid(X))
+
+
+def d_relu(X: np.ndarray) -> np.ndarray:
+    """Computes the derivative of the ReLU function.
+
+    Args:
+        X (np.ndarray): Input array.
+
+    Returns:
+        np.ndarray: Output array after applying the derivative of the ReLU function.
+    """
+
+    return np.where(X > 0, 1, 0)
 
 
 def weight_initialization(Next: int, Previous: int, weights_init: str) -> np.ndarray:
@@ -102,7 +129,7 @@ class Layer:
         self.bias = np.zeros(Next)
         self.f_activation = f_activation
 
-    def forward(self, X: np.ndarray) -> None:
+    def forward(self, X: np.ndarray) -> np.ndarray:
         """Performs the forward pass for the layer.
 
         Args:
@@ -117,8 +144,7 @@ class Layer:
 
         # Z is the output layer before
         self.Z = X
-
-        self.A = np.dot(X, self.W) + self.bias
+        self.A = np.dot(self.Z, self.W) + self.bias
         match self.f_activation:
             case "sigmoid":
                 X = sigmoid(self.A)
@@ -129,9 +155,11 @@ class Layer:
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
 
-        self.A = X
+        return X
 
-    def backward(self, loss: float, learning_rate: float, gradient: np.ndarray) -> np.ndarray:
+    def backward(
+        self, loss: float, learning_rate: float, gradient: np.ndarray
+    ) -> np.ndarray:
         """Performs the backward pass for the layer.
 
         Args:
@@ -142,8 +170,19 @@ class Layer:
             np.ndarray: The gradient of the loss function.
         """
 
-        
+        match self.f_activation:
+            case "sigmoid":
+                gradient = loss * d_sigmoid(self.A)
+            case "relu":
+                gradient = loss * d_relu(self.A)
+            case "softmax":
+                pass
+            case _:
+                raise ValueError(f"Invalid activation function: {self.f_activation}")
 
+        self.W -= learning_rate * np.dot(self.Z.T, gradient)
+        self.bias -= learning_rate * np.sum(gradient, axis=0)
 
+        self.gradient = np.dot(gradient, self.W.T)
 
         return gradient

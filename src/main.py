@@ -27,9 +27,10 @@ def main() -> None:
     dataframe = dataframe.replace({"M": "0", "B": "1"})
 
     neural = Neural(df_features.values)
+    neural.add_layer(24, "relu")
     neural.add_layer(24, "sigmoid")
-    neural.add_layer(24, "sigmoid")
-    neural.add_layer(1, "relu")
+    neural.add_layer(12, "sigmoid")
+    neural.add_layer(1, "softmax")
     neural.train(df_features.values, dataframe.values)
 
 

@@ -17,7 +17,7 @@ class Neural:
         self.alpha = alpha
         self.epoch = epoch
         self.batch_size = batch_size
-        self.learning_rate = learning_rate 
+        self.learning_rate = learning_rate
         self.layers: list[Layer] = []
 
     def add_layer(
@@ -42,8 +42,8 @@ class Neural:
             np.ndarray: The output of the neural network."""
 
         for layer in self.layers:
-            layer.forward(X)
-        return layer.A
+            X = layer.forward(X)
+        return X
 
     def loss(self, P: np.ndarray, Y: np.ndarray) -> float:
         """Computes the loss function for the neural network.
@@ -56,13 +56,13 @@ class Neural:
             float: The loss of the neural network."""
         epsilon = 1e-9  # to avoid log(0)
 
-        Y = Y.astype(float)
         loss = (
             -1
             / len(Y)
             * np.sum(
                 Y * np.log(P + epsilon) + (1 - Y) * np.log(1 - P + epsilon),
                 axis=0,
+                keepdims=True,
             )
         )
         return loss
@@ -82,5 +82,7 @@ class Neural:
     def train(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Train the neural network."""
 
+        # Convert Y["0", "1", ...] into float
+        Y = Y.astype(float)
         P = self.forward(X)
         self.backward(P, Y)
