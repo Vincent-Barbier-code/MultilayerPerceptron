@@ -5,6 +5,7 @@ from terminal.arg_parsing import execute
 from data_processing import extract
 from perceptron.neural import Neural
 
+import pandas as pd
 
 def main() -> None:
     """Main function"""
@@ -26,11 +27,11 @@ def main() -> None:
     dataframe.drop(dataframe.columns[0], axis=1, inplace=True)
     dataframe = dataframe.replace({"M": "0", "B": "1"})
 
-    neural = Neural(df_features.values)
-    neural.add_layer(24, "relu")
-    neural.add_layer(24, "sigmoid")
-    neural.add_layer(12, "sigmoid")
-    neural.add_layer(1, "softmax")
+    neural = Neural(df_features.values, epoch=10, learning_rate=0.1, batch_size=569)
+    # neural.add_layer(20, "relu", "heUniform")
+    neural.add_layer(1, "sigmoid", "heUniform")
+    # neural.add_layer(4, "sigmoid", "zeros")
+    # neural.add_layer(2, "softmax", "zeros")
     neural.train(df_features.values, dataframe.values)
 
 

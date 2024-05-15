@@ -12,8 +12,7 @@ def sigmoid(X: np.ndarray) -> np.ndarray:
         np.ndarray: Output array after applying the sigmoid function.
     """
 
-    return 1 / (1 + np.exp(-X))
-
+    return np.exp(-np.logaddexp(0, -X))
 
 def softmax(X: np.ndarray) -> np.ndarray:
     """Applies the softmax function to an input array.
@@ -25,10 +24,8 @@ def softmax(X: np.ndarray) -> np.ndarray:
         np.ndarray: Output array after applying the softmax function.
     """
 
-    X = np.exp(X)
-    S = np.sum(X)
-    return X / S
-
+    EX = np.exp(X - np.max(X, axis=1, keepdims=True))
+    return EX / EX.sum(axis=1, keepdims=True)
 
 def relu(X: np.ndarray) -> np.ndarray:
     """Applies the ReLU (Rectified Linear Unit) function to an input array.
@@ -42,6 +39,17 @@ def relu(X: np.ndarray) -> np.ndarray:
 
     return np.maximum(0, X)
 
+def tanh(X: np.ndarray) -> np.ndarray:
+    """Applies the tanh function to an input array.
+
+    Args:
+        X (np.ndarray): Input array.
+
+    Returns:
+        np.ndarray: Output array after applying the tanh function.
+    """
+
+    return np.tanh(X)
 
 def d_sigmoid(X: np.ndarray) -> np.ndarray:
     """Computes the derivative of the sigmoid function.
@@ -55,6 +63,18 @@ def d_sigmoid(X: np.ndarray) -> np.ndarray:
 
     return sigmoid(X) * (1 - sigmoid(X))
 
+def d_softmax(X: np.ndarray) -> np.ndarray:
+    """Computes the derivative of the softmax function.
+
+    Args:
+        X (np.ndarray): Input array.
+
+    Returns:
+        np.ndarray: Output array after applying the derivative of the softmax function.
+    """
+        
+    Z = softmax(X)
+    return Z * (1 - Z) 
 
 def d_relu(X: np.ndarray) -> np.ndarray:
     """Computes the derivative of the ReLU function.
@@ -68,6 +88,17 @@ def d_relu(X: np.ndarray) -> np.ndarray:
 
     return np.where(X > 0, 1, 0)
 
+def d_tanh(X: np.ndarray) -> np.ndarray:
+    """Computes the derivative of the tanh function.
+
+    Args:
+        X (np.ndarray): Input array.
+
+    Returns:
+        np.ndarray: Output array after applying the derivative of the tanh function.
+    """
+
+    return 1 - np.tanh(X) ** 2
 
 def weight_initialization(Next: int, Previous: int, weights_init: str) -> np.ndarray:
     """Initializes weights based on the specified method.
@@ -110,7 +141,7 @@ class Layer:
         Next: int = 0,
         Previous: int = 0,
         f_activation: str = "sigmoid",
-        weights_init: str = "heUniform",
+        weights_init: str = "zeros",
     ) -> None:
         """Initializes a Layer with the specified parameters.
 
@@ -143,15 +174,17 @@ class Layer:
             self.W = weight_initialization(self.Next, self.Previous, "heUniform")
 
         # Z is the output layer before
-        self.Z = X
-        self.A = np.dot(self.Z, self.W) + self.bias
+        self.input = X
+        self.Z = np.dot(self.input, self.W) + self.bias
         match self.f_activation:
             case "sigmoid":
-                X = sigmoid(self.A)
+                X = sigmoid(self.Z)
             case "softmax":
-                X = softmax(self.A)
+                X = softmax(self.Z)
             case "relu":
-                X = relu(self.A)
+                X = relu(self.Z)
+            case "tanh":
+                X = tanh(self.Z)
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
 
@@ -170,19 +203,26 @@ class Layer:
             np.ndarray: The gradient of the loss function.
         """
 
+        activation = None
         match self.f_activation:
             case "sigmoid":
-                gradient = loss * d_sigmoid(self.A)
+                activation = d_sigmoid(self.Z)
             case "relu":
-                gradient = loss * d_relu(self.A)
+                activation = d_relu(self.Z)
             case "softmax":
-                pass
+                activation = d_softmax(self.Z)
+            case "tanh":
+                activation = d_tanh(self.Z)
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
 
-        self.W -= learning_rate * np.dot(self.Z.T, gradient)
+        gradient = gradient * activation
+
+        self.W -= learning_rate * np.dot(self.input.T, gradient)
         self.bias -= learning_rate * np.sum(gradient, axis=0)
 
         self.gradient = np.dot(gradient, self.W.T)
 
         return gradient
+
+    
