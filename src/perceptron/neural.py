@@ -67,6 +67,9 @@ class Neural:
         )
         return loss
 
+    def one_hot(self, a, num_classes):
+        return np.squeeze(np.eye(num_classes)[a.reshape(-1)])
+
     def backward(self, P: np.ndarray, Y: np.ndarray) -> None:
         """Backward propagation through the neural network.
 
@@ -75,7 +78,9 @@ class Neural:
             Y (np.ndarray): The true labels."""
 
         # loss = self.loss(P, Y)
-        gradient = P - Y
+        one_hot = self.one_hot(Y, 2)
+        gradient = P - one_hot
+        
         for layer in reversed(self.layers):
             gradient = layer.backward(self.learning_rate, gradient)
 
@@ -89,16 +94,17 @@ class Neural:
         Returns:
             float: The accuracy of the neural network."""
         P = self.forward(X)
-        P = np.round(P)
-        accuracy = np.sum(P == Y) / len(Y)
-
+        P = np.argmax(P, axis=1)
+        Y = Y.reshape(-1)
+        accuracy = sum(P == Y) / len(Y)
+        
         return accuracy
 
     def train(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Train the neural network."""
 
         # Convert Y["0", "1", ...] into float
-        Y = Y.astype(float)
+        Y = Y.astype(int)
 
         for i in range(self.epoch):
             for j in range(0, len(X), self.batch_size):

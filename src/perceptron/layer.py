@@ -12,7 +12,7 @@ def sigmoid(X: np.ndarray) -> np.ndarray:
         np.ndarray: Output array after applying the sigmoid function.
     """
 
-    return np.exp(-np.logaddexp(0, -X))
+    return 1 / (1 + np.exp(-X))
 
 
 def softmax(X: np.ndarray) -> np.ndarray:
@@ -165,6 +165,7 @@ class Layer:
         self.Next = Next
         self.Previous = Previous
         self.W = weight_initialization(Next, Previous, weights_init)
+        self.weights_init = weights_init
         self.bias = np.zeros(Next)
         self.f_activation = f_activation
 
@@ -179,7 +180,7 @@ class Layer:
         """
         if self.Previous == 0:
             self.Previous = X.shape[1]
-            self.W = weight_initialization(self.Next, self.Previous, "heUniform")
+            self.W = weight_initialization(self.Next, self.Previous, self.weights_init)
 
         # Z is the output layer before
         self.input = X
@@ -220,11 +221,14 @@ class Layer:
                 activation = d_tanh(self.Z)
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
+        
         self.gradient = gradient * activation
 
-        self.W -= learning_rate * np.dot(self.input.T, self.gradient)
-        self.bias -= learning_rate * np.sum(self.gradient, axis=0)
+        self.W = self.W - learning_rate * np.dot(self.input.T, self.gradient)
+        
+        meanGrad = (1 / len(self.gradient)) * np.sum(self.gradient, axis=0)
+        self.bias = self.bias - learning_rate * meanGrad 
 
         self.gradient = np.dot(self.gradient, self.W.T)
-
+        # print(self.gradient)
         return self.gradient
