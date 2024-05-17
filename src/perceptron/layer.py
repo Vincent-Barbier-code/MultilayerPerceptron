@@ -230,5 +230,5 @@ class Layer:
         self.bias = self.bias - learning_rate * meanGrad 
 
         self.gradient = np.dot(self.gradient, self.W.T)
-        # print(self.gradient)
+
         return self.gradient

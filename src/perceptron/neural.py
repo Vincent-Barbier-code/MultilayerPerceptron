@@ -68,7 +68,7 @@ class Neural:
         return loss
 
     def one_hot(self, a, num_classes):
-        return np.squeeze(np.eye(num_classes)[a.reshape(-1)])
+        return np.squeeze(np.eye(num_classes)[a.reshape(-1)]).astype(int)
 
     def backward(self, P: np.ndarray, Y: np.ndarray) -> None:
         """Backward propagation through the neural network.
@@ -79,6 +79,7 @@ class Neural:
 
         # loss = self.loss(P, Y)
         one_hot = self.one_hot(Y, 2)
+        # print(one_hot)
         gradient = P - one_hot
         
         for layer in reversed(self.layers):
@@ -113,5 +114,17 @@ class Neural:
                 P = self.forward(self.X)
                 self.backward(P, self.Y)
 
-            accuracy = self.accuracy(X, Y)
-            print(f"Accuracy: {accuracy}")
+        accuracy = self.accuracy(X, Y)
+        print(f"Train Accuracy : {accuracy}")
+
+    def predict(self, X: np.ndarray, Y: np.ndarray) -> None:
+        """Predict the labels of the data."""
+
+        Y = Y.astype(int)
+        P = self.forward(X)
+        P = np.argmax(P, axis=1)
+        Y = Y.reshape(-1)
+        accuracy = sum(P == Y) / len(Y)
+        print(f"Predict Accuracy : {accuracy}")
+
+        

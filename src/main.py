@@ -4,8 +4,23 @@ from terminal.arg_parsing import arg_parsing
 from terminal.arg_parsing import execute
 from data_processing import extract
 from perceptron.neural import Neural
+from data_processing import set_random
 
+import pandas as pd
 import numpy as np
+
+def  data_true(data: pd.DataFrame) -> pd.DataFrame:
+    """Validation function"""
+    data.drop(data.columns[range(2, data.shape[1])], axis=1, inplace=True)
+    data.drop(data.columns[0], axis=1, inplace=True)
+    data = data.replace({"M": "0", "B": "1"})
+    return data
+
+def data_feature(data: pd.DataFrame) -> pd.DataFrame:
+    """Train function"""
+    data.drop(data.columns[[0,1]], axis=1, inplace=True)
+    # normalize the train_data
+    return (data - data.mean()) / data.std()
 
 def main() -> None:
     """Main function"""
@@ -16,28 +31,27 @@ def main() -> None:
     np.random.seed(42)
 
     dataframe = extract.Extract(args.file, header=None).data
+    dataframe = set_random.shuffle_data(dataframe)
 
-    df_features = dataframe.copy()
-    df_features.drop(dataframe.columns[[0, 1]], axis=1, inplace=True)
+    train_data, validation_data = set_random.set_random_data(dataframe)
 
-    # normalize the data
-    df_features = (df_features - df_features.mean()) / df_features.std()
+    # Train data
+    train_true = data_true(train_data.copy())
+    train_data = data_feature(train_data.copy())
 
-    dataframe.drop(
-        dataframe.columns[range(2, dataframe.shape[1])], axis=1, inplace=True
-    )
-    dataframe.drop(dataframe.columns[0], axis=1, inplace=True)
-    dataframe = dataframe.replace({"M": "0", "B": "1"})
+    # Validation data
+    validation_true = data_true(validation_data.copy())
+    validation_data = data_feature(validation_data.copy())
 
-    neural = Neural(df_features.values, epoch=100, learning_rate=0.01, batch_size=50)
-    neural.add_layer(10, "relu")
-    neural.add_layer(20, "relu")
-    neural.add_layer(20, "relu")
-    neural.add_layer(20, "relu")
-    neural.add_layer(20, "sigmoid")
+    # Neural network
+    neural = Neural(train_data.values, epoch=10000, learning_rate=0.0001, batch_size=64)
+    neural.add_layer(24, "sigmoid")
+    neural.add_layer(24, "sigmoid")
+    neural.add_layer(24, "sigmoid")
     neural.add_layer(1, "softmax")
-    neural.train(df_features.values, dataframe.values)
-
+    neural.train(train_data.values, train_true.values)
+    
+    neural.predict(validation_data.values, validation_true.values)
 
 if __name__ == "__main__":
     main()
