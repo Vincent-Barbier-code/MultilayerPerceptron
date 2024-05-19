@@ -11,9 +11,9 @@ def execute(args: argparse.Namespace) -> None:
 
     commands = {
         "install": install,
-        "run": run,  # Not really implemented
-        "train": train,  # Not implemented
-        "test": test,
+        "split": split,
+        "train": train,
+        "predict": predict,
         "sc": sc,
         "hm": hm,
         "pp": pp,
@@ -40,19 +40,18 @@ def arg_parsing() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--file", type=str, help="Path to the CSV file", default="../data/data.csv"
+        "--file", type=str, help="Path to the CSV file"
     )
     parser.add_argument(
         "--install", action="store_true", help="Install the required packages"
     )
-    parser.add_argument("--run", action="store_true", help="Run the program")
     parser.add_argument(
-        "--random", action="store_true", help="Set random training and validation data"
+        "--split", action="store_true", help="Split the data into training and validation sets"
     )
     parser.add_argument(
         "--train", action="store_true", help="Train the neural network model"
     )
-    parser.add_argument("--test", action="store_true", help="Run the tests")
+    parser.add_argument("--predict", action="store_true", help="Predict the validation data")
     parser.add_argument("--sc", action="store_true", help="Create scatter plots")
     parser.add_argument("--hm", action="store_true", help="Create heat maps")
     parser.add_argument("--pp", action="store_true", help="Create pair plots")
@@ -65,29 +64,50 @@ def arg_parsing() -> argparse.Namespace:
 def install() -> None:
     """Install the required packages"""
     print("Installing the required packages...")
-    subprocess.run(["pip", "install", "-r", "requirements.txt"])
+    subprocess.run(["pip", "install", "-r", "../requirements.txt"])
+    exit(0)
 
-
-def run(args: argparse.Namespace) -> None:
-    """Run the program"""
-    print("Running the program...")
-    subprocess.run(["python3", "src/main.py", "--file", args.file])
+def split(args: argparse.Namespace) -> None:
+    """Split the data into training and validation sets"""
+    
+    print("Splitting the data into training and validation sets...")
+    create_dirs(["../data/mydata"])
+    
+    if args.file is None:
+        args.file = "../data/data.csv"
+    
+    import data_processing as process
+    dataframe = process.extract.Extract(args.file).data
+    process.split.create_dfs(dataframe)
+    exit(0)
 
 
 def train(args: argparse.Namespace) -> None:
     """Train the neural network model"""
     print("Training the neural network model...")
-    if args.file:
-        subprocess.run(["python3", "src/train.py", "--file", args.file])
-    else:
+    if args.file is None:
+        args.file = "../data/mydata/train_data.csv"
+        if not os.path.exists(args.file):
+            print("No file found for training. Split the data first.")
+            exit(1)
         print("No file specified for training. Use default training set.")
+    create_dirs(["../data/mymodels"])
+    if os.path.exists("../data/mymodels/neural.pkl"):
+        os.remove("../data/mymodels/neural.pkl")
+        
 
-
-def test() -> None:
-    """Run the tests"""
-    print("Running the tests...")
-    subprocess.run(["python3", "-m", "pytest", "src/tests"])
-
+def predict(args: argparse.Namespace) -> None:
+    """Predict the validation data"""
+    print("Predicting the validation data...")
+    if args.file is None:
+        args.file = "../data/mydata/validation_data.csv"
+        if not os.path.exists(args.file):
+            print("No file found for predicting. Split the data first.")
+            exit(1)
+        print("No file specified for predicting. Use default validation set.")
+    if not os.path.exists("../data/mymodels/neural.pkl"):
+        print("No model found. Train the model first.")
+        exit(1)
 
 def plot(args: argparse.Namespace) -> None:
     """Create all plots"""
@@ -145,6 +165,8 @@ def clean() -> None:
     """Clean up temporary files"""
     print("Cleaning up temporary files...")
     subprocess.run(["rm", "-rf", "plots"])
+    subprocess.run(["rm", "-rf", "../data/mydata"])
+    exit(0)
 
 
 def create_dirs(dir_list):
