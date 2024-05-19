@@ -1,3 +1,5 @@
 */*.pyc
 __pycache__
 plots/*
+!data/data.csv
+data/*
