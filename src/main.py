@@ -1,7 +1,6 @@
 """Main module"""
 
 from data_processing import extract
-from data_processing import set_random
 from data_processing.split import data_true, data_feature
 from perceptron.neural import Neural
 from terminal.arg_parsing import arg_parsing
@@ -10,7 +9,6 @@ from terminal.arg_parsing import execute
 import numpy as np
 import pandas as pd
 import pickle
-import sys
 
 def train(train_data: pd.DataFrame) -> None:
     """Train the neural network"""
@@ -19,7 +17,7 @@ def train(train_data: pd.DataFrame) -> None:
     train_true = data_true(train_data.copy())
     train_data = data_feature(train_data)
     
-    neural = Neural(train_data.values, epoch=100, learning_rate=0.01, batch_size=64)
+    neural = Neural(train_data.values, epoch=100, learning_rate=0.1, batch_size=5)
     neural.add_layer(24, "sigmoid")
     neural.add_layer(24, "sigmoid")
     neural.add_layer(24, "sigmoid")

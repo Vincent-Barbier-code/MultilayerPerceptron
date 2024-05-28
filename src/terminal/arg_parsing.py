@@ -90,7 +90,6 @@ def train(args: argparse.Namespace) -> None:
         if not os.path.exists(args.file):
             print("No file found for training. Split the data first.")
             exit(1)
-        print("No file specified for training. Use default training set.")
     create_dirs(["../data/mymodels"])
     if os.path.exists("../data/mymodels/neural.pkl"):
         os.remove("../data/mymodels/neural.pkl")
@@ -104,7 +103,6 @@ def predict(args: argparse.Namespace) -> None:
         if not os.path.exists(args.file):
             print("No file found for predicting. Split the data first.")
             exit(1)
-        print("No file specified for predicting. Use default validation set.")
     if not os.path.exists("../data/mymodels/neural.pkl"):
         print("No model found. Train the model first.")
         exit(1)
@@ -166,6 +164,7 @@ def clean() -> None:
     print("Cleaning up temporary files...")
     subprocess.run(["rm", "-rf", "plots"])
     subprocess.run(["rm", "-rf", "../data/mydata"])
+    subprocess.run(["rm", "-rf", "../data/mymodels"])
     exit(0)
 
 
