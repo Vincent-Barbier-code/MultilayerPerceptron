@@ -50,7 +50,7 @@ class Neural:
             X = layer.forward(X)
         return X
 
-    def loss(self, P: np.ndarray, Y: np.ndarray) -> None:
+    def loss(self, P: np.ndarray, Y: np.ndarray) -> float:
         """Computes the loss function for the neural network.
 
         Args:
@@ -65,13 +65,8 @@ class Neural:
         loss = -np.mean(
             Y * np.log(P + epsilon) + (1 - Y) * np.log(1 - P + epsilon),
         )
-        print(f"Loss : {loss}")
-
-    def BCE(self, y_true, y_pred, eps: float = 1e-16):
-        y_pred = np.clip(y_pred, eps, 1 - eps)
-        log_loss = -(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
-        return np.mean(log_loss)
-
+        return loss
+    
     def backward(self, P: np.ndarray, Y: np.ndarray) -> None:
         """Backward propagation through the neural network.
 
@@ -101,6 +96,24 @@ class Neural:
         accuracy = sum(P == Y) / len(Y)
         print(f"Accuracy : {accuracy}")
 
+    def visualize(self, X:np.ndarray, Y:np.ndarray, X_val:np.ndarray, Y_val:np.ndarray, epoch:int) -> None:
+        """Visualize the neural network."""
+
+        if epoch == 0:
+            print("x_train shape : ", X.shape)
+            print("x_train shape : ", X_val.shape)
+        # loss train
+        P = self.forward(X)
+        Y_one = one_hot(Y, 2)
+
+        #loss validationn
+        Y_val = Y_val.astype(int)
+        Y_val_one = one_hot(Y_val, 2)
+        
+        print("epoch ", epoch + 1, "/", self.epoch, "- loss", "{:.4f}".format(self.loss(P, Y_one)), 
+              "- val_loss", "{:.4f}".format(self.loss(self.forward(X_val), Y_val_one)))
+
+
     def shuffle_batch(
         self, X: np.ndarray, Y: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray]:
@@ -116,12 +129,12 @@ class Neural:
         idx = np.random.permutation(len(X))
         return X[idx], Y[idx]
 
-    def train(self, X: np.ndarray, Y: np.ndarray) -> None:
+    def train(self, X: np.ndarray, Y: np.ndarray, X_val:np.ndarray, Y_val:np.ndarray) -> None:
         """Train the neural network."""
 
         # Convert Y["0", "1", ...] into float
         Y = Y.astype(int)
-        for _ in range(self.epoch):
+        for epoch in range(self.epoch):
             X, Y = self.shuffle_batch(X, Y)
             for j in range(0, len(X), self.batch_size):
 
@@ -131,11 +144,7 @@ class Neural:
                 P = self.forward(self.X)
                 self.backward(P, self.Y)
 
-            P = self.forward(X)
-            Y_one = one_hot(Y, 2)
-            
-            # print(f"Loss1 : {self.BCE(Y_one, P)}")
-            self.loss(P, Y_one)
+            self.visualize(X, Y, X_val, Y_val, epoch) 
 
         self.accuracy(X, Y)
 
@@ -145,5 +154,5 @@ class Neural:
         Y = Y.astype(int)
 
         self.Y = one_hot(Y, 2)
-        self.loss(self.forward(X), self.Y)
+        print(self.loss(self.forward(X), self.Y))
         self.accuracy(X, Y)

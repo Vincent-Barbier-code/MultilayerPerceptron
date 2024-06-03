@@ -14,10 +14,6 @@ def execute(args: argparse.Namespace) -> None:
         "split": split,
         "train": train,
         "predict": predict,
-        "sc": sc,
-        "hm": hm,
-        "pp": pp,
-        "plot": plot,
         "clean": clean,
     }
 
@@ -43,6 +39,9 @@ def arg_parsing() -> argparse.Namespace:
         "--file", type=str, help="Path to the CSV file"
     )
     parser.add_argument(
+        "--file2", type=str, help="Path to the CSV file2"
+    )
+    parser.add_argument(
         "--install", action="store_true", help="Install the required packages"
     )
     parser.add_argument(
@@ -52,10 +51,6 @@ def arg_parsing() -> argparse.Namespace:
         "--train", action="store_true", help="Train the neural network model"
     )
     parser.add_argument("--predict", action="store_true", help="Predict the validation data")
-    parser.add_argument("--sc", action="store_true", help="Create scatter plots")
-    parser.add_argument("--hm", action="store_true", help="Create heat maps")
-    parser.add_argument("--pp", action="store_true", help="Create pair plots")
-    parser.add_argument("--plot", action="store_true", help="Create all plots")
     parser.add_argument("--clean", action="store_true", help="Clean up temporary files")
 
     return parser.parse_args()
@@ -90,6 +85,11 @@ def train(args: argparse.Namespace) -> None:
         if not os.path.exists(args.file):
             print("No file found for training. Split the data first.")
             exit(1)
+    if args.file2 is None:
+        args.file2 = "../data/mydata/validation_data.csv"
+        if not os.path.exists(args.file2):
+            print("No file found for training. Split the data first.")
+            exit(1)
     create_dirs(["../data/mymodels"])
     if os.path.exists("../data/mymodels/neural.pkl"):
         os.remove("../data/mymodels/neural.pkl")
@@ -106,58 +106,6 @@ def predict(args: argparse.Namespace) -> None:
     if not os.path.exists("../data/mymodels/neural.pkl"):
         print("No model found. Train the model first.")
         exit(1)
-
-def plot(args: argparse.Namespace) -> None:
-    """Create all plots"""
-    import data_visualization as dv
-
-    print("Creating all plots...")
-    if args.file:
-        create_dirs(
-            ["plots", "plots/scatter_plots", "plots/heat_maps", "plots/pair_plots"]
-        )
-        dv.plots("hm")
-        dv.plots("sc")
-        dv.plots("pp")
-    else:
-        print("No file specified for creating plots. Use default csv file.")
-
-
-def hm(args: argparse.Namespace) -> None:
-    """Create heat maps"""
-    import data_visualization as dv
-
-    print("Creating heat maps...")
-    if args.file:
-        create_dirs(["plots", "plots/heat_maps"])
-        dv.plots("hm")
-    else:
-        print("No file specified for creating heat maps. Use default csv file.")
-
-
-def sc(args: argparse.Namespace) -> None:
-    """Create scatter plots"""
-    import data_visualization as dv
-
-    print("Creating scatter plots...")
-    if args.file:
-        create_dirs(["plots", "plots/scatter_plots"])
-        dv.plots("sc")
-    else:
-        print("No file specified for creating scatter plots. Use default csv file.")
-
-
-def pp(args: argparse.Namespace) -> None:
-    """Create pair plots"""
-    import data_visualization as dv
-
-    print("Creating pair plots...")
-    if args.file:
-        create_dirs(["plots", "plots/pair_plots"])
-        dv.plots("pp")
-    else:
-        print("No file specified for creating pair plots. Use default csv file.")
-
 
 def clean() -> None:
     """Clean up temporary files"""
