@@ -2,9 +2,11 @@ import numpy as np
 
 from perceptron.layer import Layer
 
+
 def one_hot(a: np.ndarray, num_classes: int):
     """Convert an array of integers into a one-hot encoded matrix."""
     return np.squeeze(np.eye(num_classes)[a.reshape(-1)]).astype(int)
+
 
 class Neural:
 
@@ -57,19 +59,14 @@ class Neural:
 
         Returns:
             float: The loss of the neural network."""
-            
-        epsilon = 1e-9  # to avoid log(0)
 
-        loss = - np.mean(
-            # -1
-            # / len(P)
-             np.sum(
-                Y * np.log(P + epsilon) + (1 - Y) * np.log(1 - P + epsilon),
-                axis=1,
-            )
+        epsilon = 1e-16  # to avoid log(0)
+
+        loss = -np.mean(
+            Y * np.log(P + epsilon) + (1 - Y) * np.log(1 - P + epsilon),
         )
         print(f"Loss : {loss}")
-        
+
     def BCE(self, y_true, y_pred, eps: float = 1e-16):
         y_pred = np.clip(y_pred, eps, 1 - eps)
         log_loss = -(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
@@ -84,7 +81,7 @@ class Neural:
 
         Yreshape = one_hot(Y, 2)
         gradient = P - Yreshape
-        
+
         for layer in reversed(self.layers):
             gradient = layer.backward(self.learning_rate, gradient)
 
@@ -97,14 +94,16 @@ class Neural:
 
         Returns:
             float: The accuracy of the neural network."""
-        
+
         P = self.forward(X)
         P = np.argmax(P, axis=1)
         Y = Y.reshape(-1)
         accuracy = sum(P == Y) / len(Y)
         print(f"Accuracy : {accuracy}")
 
-    def shuffle_batch(self, X: np.ndarray, Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def shuffle_batch(
+        self, X: np.ndarray, Y: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Shuffle the data and return a batch of data.
 
         Args:
@@ -113,7 +112,6 @@ class Neural:
 
         Returns:
             tuple[np.ndarray, np.ndarray]: The shuffled data and labels."""
-        
 
         idx = np.random.permutation(len(X))
         return X[idx], Y[idx]
@@ -126,17 +124,19 @@ class Neural:
         for _ in range(self.epoch):
             X, Y = self.shuffle_batch(X, Y)
             for j in range(0, len(X), self.batch_size):
-                
+
                 self.X = X[j : j + self.batch_size]
                 self.Y = Y[j : j + self.batch_size]
-            
+
                 P = self.forward(self.X)
                 self.backward(P, self.Y)
 
-                Y_one = one_hot(self.Y, 2)
-                print(f"Loss1 : {self.BCE(Y_one, P)}")
-                self.loss(P, Y_one)
+            P = self.forward(X)
+            Y_one = one_hot(Y, 2)
             
+            # print(f"Loss1 : {self.BCE(Y_one, P)}")
+            self.loss(P, Y_one)
+
         self.accuracy(X, Y)
 
     def predict(self, X: np.ndarray, Y: np.ndarray) -> None:
@@ -147,5 +147,3 @@ class Neural:
         self.Y = one_hot(Y, 2)
         self.loss(self.forward(X), self.Y)
         self.accuracy(X, Y)
-
-        

@@ -123,8 +123,8 @@ def weight_initialization(Next: int, Previous: int, weights_init: str) -> np.nda
         ValueError: If an invalid weight initialization method is provided.
     """
 
-    if Previous == 0:
-        return np.zeros((Previous, Next))
+    # if Previous == 0:
+    #     return np.zeros((Previous, Next))
 
     match weights_init:
         case "random":
@@ -221,13 +221,13 @@ class Layer:
                 activation = d_tanh(self.Z)
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
-        
+
         self.gradient = gradient * activation
 
-        self.W = self.W - learning_rate * np.dot(self.input.T, self.gradient)
-        
+        self.W -= learning_rate * np.dot(self.input.T, self.gradient)
+
         meanGrad = (1 / len(self.gradient)) * np.sum(self.gradient, axis=0)
-        self.bias = self.bias - learning_rate * meanGrad 
+        self.bias = self.bias - learning_rate * meanGrad
 
         self.gradient = np.dot(self.gradient, self.W.T)
 
