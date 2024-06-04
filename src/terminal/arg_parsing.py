@@ -86,7 +86,7 @@ def train(args: argparse.Namespace) -> None:
             print("No file found for training. Split the data first.")
             exit(1)
     if args.file2 is None:
-        args.file2 = "../data/mydata/validation_data.csv"
+        args.file2 = "../data/mydata/test_data.csv"
         if not os.path.exists(args.file2):
             print("No file found for training. Split the data first.")
             exit(1)

@@ -1,5 +1,5 @@
 import numpy as np
-
+import sklearn.metrics as sk
 from perceptron.layer import Layer
 
 
@@ -96,22 +96,22 @@ class Neural:
         accuracy = sum(P == Y) / len(Y)
         print(f"Accuracy : {accuracy}")
 
-    def visualize(self, X:np.ndarray, Y:np.ndarray, X_val:np.ndarray, Y_val:np.ndarray, epoch:int) -> None:
+    def visualize(self, X:np.ndarray, Y:np.ndarray, X_test:np.ndarray, Y_test:np.ndarray, epoch:int) -> None:
         """Visualize the neural network."""
 
         if epoch == 0:
             print("x_train shape : ", X.shape)
-            print("x_train shape : ", X_val.shape)
+            print("x_test shape : ", X_test.shape)
         # loss train
         P = self.forward(X)
         Y_one = one_hot(Y, 2)
 
-        #loss validationn
-        Y_val = Y_val.astype(int)
-        Y_val_one = one_hot(Y_val, 2)
+        #loss test
+        Y_test = Y_test.astype(int)
+        Y_test_one = one_hot(Y_test, 2)
         
         print("epoch ", epoch + 1, "/", self.epoch, "- loss", "{:.4f}".format(self.loss(P, Y_one)), 
-              "- val_loss", "{:.4f}".format(self.loss(self.forward(X_val), Y_val_one)))
+              "- val_loss", "{:.4f}".format(self.loss(self.forward(X_test), Y_test_one)))
 
 
     def shuffle_batch(
@@ -129,7 +129,7 @@ class Neural:
         idx = np.random.permutation(len(X))
         return X[idx], Y[idx]
 
-    def train(self, X: np.ndarray, Y: np.ndarray, X_val:np.ndarray, Y_val:np.ndarray) -> None:
+    def train(self, X: np.ndarray, Y: np.ndarray, X_test:np.ndarray, Y_test:np.ndarray) -> None:
         """Train the neural network."""
 
         # Convert Y["0", "1", ...] into float
@@ -137,14 +137,13 @@ class Neural:
         for epoch in range(self.epoch):
             X, Y = self.shuffle_batch(X, Y)
             for j in range(0, len(X), self.batch_size):
-
                 self.X = X[j : j + self.batch_size]
                 self.Y = Y[j : j + self.batch_size]
 
                 P = self.forward(self.X)
                 self.backward(P, self.Y)
 
-            self.visualize(X, Y, X_val, Y_val, epoch) 
+            self.visualize(X, Y, X_test, Y_test, epoch) 
 
         self.accuracy(X, Y)
 

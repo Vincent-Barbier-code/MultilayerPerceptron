@@ -222,13 +222,11 @@ class Layer:
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
 
-        self.gradient = gradient * activation
+        gradient = gradient * activation
+        dW = np.dot(self.input.T, gradient)
+        dbias = np.sum(gradient, axis=0)
+        gradient = np.dot(gradient, self.W.T)
+        self.W -= learning_rate * dW
+        self.bias -= learning_rate * dbias
 
-        self.W -= learning_rate * np.dot(self.input.T, self.gradient)
-
-        meanGrad = (1 / len(self.gradient)) * np.sum(self.gradient, axis=0)
-        self.bias = self.bias - learning_rate * meanGrad
-
-        self.gradient = np.dot(self.gradient, self.W.T)
-
-        return self.gradient
+        return gradient
