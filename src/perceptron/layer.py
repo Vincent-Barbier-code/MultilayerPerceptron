@@ -78,8 +78,9 @@ def d_softmax(X: np.ndarray) -> np.ndarray:
         np.ndarray: Output array after applying the derivative of the softmax function.
     """
 
-    Z = softmax(X)
-    return Z * (1 - Z)
+    # Z = softmax(X)
+    # Z * (1 - Z)
+    return 1
 
 
 def d_relu(X: np.ndarray) -> np.ndarray:
@@ -122,9 +123,6 @@ def weight_initialization(Next: int, Previous: int, weights_init: str) -> np.nda
     Raises:
         ValueError: If an invalid weight initialization method is provided.
     """
-
-    # if Previous == 0:
-    #     return np.zeros((Previous, Next))
 
     match weights_init:
         case "random":
@@ -222,11 +220,12 @@ class Layer:
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
 
-        gradient = gradient * activation
-        dW = np.dot(self.input.T, gradient)
-        dbias = np.sum(gradient, axis=0)
-        gradient = np.dot(gradient, self.W.T)
+        ngradient = gradient * activation
+        dW = np.dot(self.input.T, ngradient)
+        dbias = np.sum(ngradient, axis=0)
+
+        dgradient = np.dot(ngradient, self.W.T)
         self.W -= learning_rate * dW
         self.bias -= learning_rate * dbias
 
-        return gradient
+        return dgradient

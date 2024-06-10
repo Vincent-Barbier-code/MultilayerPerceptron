@@ -22,10 +22,10 @@ def train(train_data: pd.DataFrame, test_data: pd.DataFrame) -> None:
     test_true = data_true(test_data.copy())
     test_data = data_feature(test_data)
 
-    neural = Neural(train_data.values, epoch=200, learning_rate=0.16, batch_size=16)
-    # neural.add_layer(42, "sigmoid")
-    # neural.add_layer(42, "sigmoid")
+    neural = Neural(train_data.values, epoch=500, learning_rate=0.01, batch_size=128)
+    # neural.add_layer(24, "sigmoid")
     neural.add_layer(24, "sigmoid")
+    neural.add_layer(12, "sigmoid")
     neural.add_layer(2, "softmax")
     neural.train(train_data.values, train_true.values, test_data.values, test_true.values)
 
