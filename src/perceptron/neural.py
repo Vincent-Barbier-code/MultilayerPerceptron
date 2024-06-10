@@ -11,9 +11,8 @@ class Neural:
 
     def __init__(
         self,
-        X: np.ndarray,
         alpha: float = 0.1,
-        epoch: int = 30,
+        epoch: int = 200,
         batch_size: int = 256,
         learning_rate: float = 0.1,
     ) -> None:
@@ -111,6 +110,7 @@ class Neural:
         
         print("epoch ", epoch + 1, "/", self.epoch, "- loss", "{:.4f}".format(self.loss(P, Y_one)), 
               "- val_loss", "{:.4f}".format(self.loss(self.forward(X_test), Y_test_one)))
+
 
     def shuffle_data(self, X: np.ndarray, Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Shuffle the data.
