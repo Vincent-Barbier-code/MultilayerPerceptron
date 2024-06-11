@@ -1,11 +1,13 @@
 import numpy as np
-from perceptron.layer import Layer
+import alive_progress as ap
 from sklearn.utils import shuffle
+
+from perceptron.layer import Layer
+from data_visualization.plots import plot
 
 def one_hot(a: np.ndarray, num_classes: int):
     """Convert an array of integers into a one-hot encoded matrix."""
     return np.squeeze(np.eye(num_classes)[a.reshape(-1)]).astype(int)
-
 
 class Neural:
 
@@ -21,6 +23,11 @@ class Neural:
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.layers: list[Layer] = []
+        self.losses = []
+        self.val_losses = []
+        self.epochs = []
+        self.accuracies = []
+    
 
     def add_layer(
         self,
@@ -110,6 +117,11 @@ class Neural:
         
         print("epoch ", epoch + 1, "/", self.epoch, "- loss", "{:.4f}".format(self.loss(P, Y_one)), 
               "- val_loss", "{:.4f}".format(self.loss(self.forward(X_test), Y_test_one)))
+        
+        self.epochs.append(epoch)
+        self.losses.append(self.loss(P, Y_one))
+        self.val_losses.append(self.loss(self.forward(X_test), Y_test_one))
+
 
 
     def shuffle_data(self, X: np.ndarray, Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -143,16 +155,18 @@ class Neural:
         """Train the neural network."""
 
         # Convert Y["0", "1", ...] into float
-        Y = Y.astype(int)
-        for epoch in range(self.epoch):
-            for X_batch, Y_batch in self.get_batches(X, Y):
+        Y = Y.astype(int)       
+        with ap.alive_bar(self.epoch, title="Training") as bar:
+            for epoch in range(self.epoch):
+                    for X_batch, Y_batch in self.get_batches(X, Y):
 
-                P = self.forward(X_batch)
-                self.backward(P, Y_batch)
+                        P = self.forward(X_batch)
+                        self.backward(P, Y_batch)
 
-            self.visualize(X, Y, X_test, Y_test, epoch)
-
+                    self.visualize(X, Y, X_test, Y_test, epoch)
+                    bar()
         self.accuracy(X, Y)
+        plot(self.epochs, self.losses, self.val_losses).plots()
 
     def predict(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Predict the labels of the data."""
@@ -160,5 +174,5 @@ class Neural:
         Y = Y.astype(int)
 
         Y_one = one_hot(Y, 2)
-        print(self.loss(self.forward(X), Y_one))
+        print("Loss: ", self.loss(self.forward(X), Y_one))
         self.accuracy(X, Y)

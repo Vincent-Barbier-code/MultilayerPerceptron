@@ -22,9 +22,9 @@ def train(train_data: pd.DataFrame, test_data: pd.DataFrame) -> None:
     test_true = data_true(test_data.copy())
     test_data = data_feature(test_data)
 
-    neural = Neural(train_data.values, epoch=50, learning_rate=0.01, batch_size=20)
+    neural = Neural(train_data.values, epoch=100, learning_rate=0.01, batch_size=80)
     neural.add_layer(18, "relu")
-    neural.add_layer(13, "sigmoid")
+    # neural.add_layer(13, "sigmoid")
     neural.add_layer(8, "sigmoid")
     neural.add_layer(2, "softmax")
     neural.train(train_data.values, train_true.values, test_data.values, test_true.values)
@@ -47,7 +47,7 @@ def predict(validation_data: pd.DataFrame) -> None:
 def main() -> None:
     """Main function"""
 
-    np.random.seed(42)
+    np.random.seed()    
 
     args = arg_parsing()
     execute(args)

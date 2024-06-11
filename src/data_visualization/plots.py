@@ -1,7 +1,7 @@
 """Module to create plots"""
 
 import matplotlib.pyplot as plt
-from alive_progress import alive_bar
+# from alive_progress import ap
 from data_processing import extract as extract
 import seaborn as sns
 import numpy as np
@@ -9,15 +9,24 @@ import numpy as np
 class plot:
     """Class to create plots"""
 
-    def __init__(self, data: np.ndarray) -> None:
+    def __init__(self, epochs, losses, val_losses) -> None:
         """Initialize the data"""
-        self.data = data
+        self.epochs = epochs
+        self.losses = losses
+        self.val_losses = val_losses
 
-    def plot(self) -> None:
+
+    def plots(self) -> None:
         """Plot the data"""
+        self.loss_plot()
+    
+    def loss_plot(self) -> None:
+        """Plot the neural network."""
 
-        with alive_bar(100) as bar:
-            sns.pairplot(self.data.data)
-            bar()
+        lineplot = sns.lineplot(x=self.epochs, y=self.losses, color="red", label="train")
+        sns.lineplot(x=self.epochs, y=self.val_losses, color="blue", label="test")
+        lineplot.set(xlabel="Epochs", ylabel="Loss")
+        fig = lineplot.get_figure()
+        # plt.show()
 
-        plt.show()
+    
