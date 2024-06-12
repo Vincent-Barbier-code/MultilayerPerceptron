@@ -4,9 +4,8 @@ import matplotlib.pyplot as plt
 # from alive_progress import ap
 from data_processing import extract as extract
 import seaborn as sns
-import numpy as np
 
-class plot:
+class Plot:
     """Class to create plots"""
 
     def __init__(self, epochs, losses, val_losses) -> None:
@@ -27,6 +26,6 @@ class plot:
         sns.lineplot(x=self.epochs, y=self.val_losses, color="blue", label="test")
         lineplot.set(xlabel="Epochs", ylabel="Loss")
         fig = lineplot.get_figure()
-        # plt.show()
+        plt.show()
 
     

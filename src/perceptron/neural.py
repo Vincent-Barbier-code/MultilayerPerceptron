@@ -3,7 +3,7 @@ import alive_progress as ap
 from sklearn.utils import shuffle
 
 from perceptron.layer import Layer
-from data_visualization.plots import plot
+from data_visualization.plots import Plot
 
 def one_hot(a: np.ndarray, num_classes: int):
     """Convert an array of integers into a one-hot encoded matrix."""
@@ -28,7 +28,6 @@ class Neural:
         self.epochs = []
         self.accuracies = []
     
-
     def add_layer(
         self,
         Next: int = 0,
@@ -122,8 +121,6 @@ class Neural:
         self.losses.append(self.loss(P, Y_one))
         self.val_losses.append(self.loss(self.forward(X_test), Y_test_one))
 
-
-
     def shuffle_data(self, X: np.ndarray, Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Shuffle the data.
 
@@ -152,8 +149,20 @@ class Neural:
             yield X[i : i + self.batch_size], Y[i : i + self.batch_size]
 
     def train(self, X: np.ndarray, Y: np.ndarray, X_test:np.ndarray, Y_test:np.ndarray) -> None:
-        """Train the neural network."""
+        """Train the neural network.
+        
+        Args:
+            X (np.ndarray): The Z data.
+            Y (np.ndarray): The true labels.
+            X_test (np.ndarray): The Z test data.
+            Y_test (np.ndarray): The true test labels.
 
+        Returns:
+            None: None.
+        """
+        from perceptron.optimizer import Optimizer
+
+        opt = Optimizer()
         # Convert Y["0", "1", ...] into float
         Y = Y.astype(int)       
         with ap.alive_bar(self.epoch, title="Training") as bar:
@@ -164,9 +173,13 @@ class Neural:
                         self.backward(P, Y_batch)
 
                     self.visualize(X, Y, X_test, Y_test, epoch)
+                    if (early_neural := opt.early_stop(self, self.val_losses, 10)) != None:
+                        break
                     bar()
+        if early_neural:
+            self = early_neural
         self.accuracy(X, Y)
-        plot(self.epochs, self.losses, self.val_losses).plots()
+        Plot(self.epochs, self.losses, self.val_losses).plots()
 
     def predict(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Predict the labels of the data."""
