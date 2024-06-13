@@ -31,7 +31,7 @@ def arg_parsing() -> argparse.Namespace:
 
     parser = argparse.ArgumentParser(
         prog="Multilayer Perceptron",
-        description="An artificial neural networks with multiple layers \
+        description="An artificial network networks with multiple layers \
         to predict whether a cancer is malignant or benign on a dataset of breast cancer diagnosis.",
     )
 
@@ -48,7 +48,13 @@ def arg_parsing() -> argparse.Namespace:
         "--split", action="store_true", help="Split the data into training and validation sets"
     )
     parser.add_argument(
-        "--train", action="store_true", help="Train the neural network model"
+        "--train", action="store_true", help="Train the network network model"
+    )
+    parser.add_argument(
+        "--early_stop", action="store_true", help="Early stop the training"
+    )
+    parser.add_argument(
+        "--optimizer", type=str, help="The optimizer to use"
     )
     parser.add_argument("--predict", action="store_true", help="Predict the validation data")
     parser.add_argument("--clean", action="store_true", help="Clean up temporary files")
@@ -78,8 +84,8 @@ def split(args: argparse.Namespace) -> None:
 
 
 def train(args: argparse.Namespace) -> None:
-    """Train the neural network model"""
-    print("Training the neural network model...")
+    """Train the network network model"""
+    print("Training the network network model...")
     if args.file is None:
         args.file = "../data/mydata/train_data.csv"
         if not os.path.exists(args.file):
@@ -90,9 +96,15 @@ def train(args: argparse.Namespace) -> None:
         if not os.path.exists(args.file2):
             print("No file found for training. Split the data first.")
             exit(1)
+    if args.early_stop:
+        if args.early_stop == None:
+            args.early_stop = False
+        else:
+            args.early_stop = True
+    
     create_dirs(["../data/mymodels"])
-    if os.path.exists("../data/mymodels/neural.pkl"):
-        os.remove("../data/mymodels/neural.pkl")
+    if os.path.exists("../data/mymodels/network.pkl"):
+        os.remove("../data/mymodels/network.pkl")
         
 
 def predict(args: argparse.Namespace) -> None:
@@ -103,7 +115,7 @@ def predict(args: argparse.Namespace) -> None:
         if not os.path.exists(args.file):
             print("No file found for predicting. Split the data first.")
             exit(1)
-    if not os.path.exists("../data/mymodels/neural.pkl"):
+    if not os.path.exists("../data/mymodels/network.pkl"):
         print("No model found. Train the model first.")
         exit(1)
 

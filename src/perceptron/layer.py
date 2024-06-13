@@ -140,7 +140,7 @@ def weight_initialization(Next: int, Previous: int, weights_init: str) -> np.nda
 
 
 class Layer:
-    """A class to represent a layer in a neural network."""
+    """A class to represent a layer in a network network."""
 
     def __init__(
         self,

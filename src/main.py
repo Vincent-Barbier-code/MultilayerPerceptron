@@ -2,7 +2,7 @@
 
 from data_processing import extract
 from data_processing.split import data_true, data_feature
-from perceptron.neural import Neural
+from perceptron.network import Network
 from terminal.arg_parsing import arg_parsing
 from terminal.arg_parsing import execute
 
@@ -12,7 +12,15 @@ import pickle
 
 
 def train(train_data: pd.DataFrame, test_data: pd.DataFrame) -> None:
-    """Train the neural network"""
+    """Train the network network
+
+    Args:
+        train_data (pd.DataFrame): The train data.
+        test_data (pd.DataFrame): The test data.
+
+    Returns:
+        None: None.
+    """
 
     # Train data
     train_true = data_true(train_data.copy())
@@ -22,14 +30,22 @@ def train(train_data: pd.DataFrame, test_data: pd.DataFrame) -> None:
     test_true = data_true(test_data.copy())
     test_data = data_feature(test_data)
 
-    neural = Neural(train_data.values, epoch=100, learning_rate=0.01, batch_size=80)
-    neural.add_layer(12, "relu")
-    neural.add_layer(12, "sigmoid")
-    neural.add_layer(2, "softmax")
-    neural.train(train_data.values, train_true.values, test_data.values, test_true.values)
+    network = Network(train_data.values, epoch=1000, learning_rate=0.004, batch_size=128)
+    network.add_layer(32, "relu")
+    network.add_layer(20, "sigmoid")
+    network.add_layer(10, "sigmoid")
+    network.add_layer(2, "softmax")
+    network.train(train_data.values, train_true.values, test_data.values, test_true.values)
 
-    pickle.dump(neural, open("../data/mymodels/neural.pkl", "wb"))
-    print("> saving model '../data/mymodels/neural.pkl' to disk...")
+    # network = Network(train_data.values, epoch=5000, learning_rate=0.001, batch_size=16)
+    # network.add_layer(30, "relu")
+    # network.add_layer(20, "relu")
+    # network.add_layer(10, "relu")
+    # network.add_layer(2, "softmax")
+    # network.train(train_data.values, train_true.values, test_data.values, test_true.values)
+
+    pickle.dump(network, open("../data/mymodels/network.pkl", "wb"))
+    print("> saving model '../data/mymodels/network.pkl' to disk...")
 
 
 def predict(validation_data: pd.DataFrame) -> None:
@@ -39,14 +55,14 @@ def predict(validation_data: pd.DataFrame) -> None:
     validation_true = data_true(validation_data.copy())
     validation_data = data_feature(validation_data)
 
-    neural = pickle.load(open("../data/mymodels/neural.pkl", "rb"))
-    neural.predict(validation_data.values, validation_true.values)
+    network = pickle.load(open("../data/mymodels/network.pkl", "rb"))
+    network.predict(validation_data.values, validation_true.values)
 
 
 def main() -> None:
     """Main function"""
 
-    np.random.seed(4242)    
+    np.random.seed(424)    
     # print(np.random.get_state())
     args = arg_parsing()
     execute(args)

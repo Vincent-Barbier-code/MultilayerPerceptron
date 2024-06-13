@@ -18,13 +18,11 @@ def data_feature(data: pd.DataFrame) -> pd.DataFrame:
     # normalize the train_data
     return (data - data.mean()) / data.std()
 
-
 def create_dfs(dataframe: pd.DataFrame) -> pd.DataFrame:
-
-    dataframe = set_random.shuffle_data(dataframe)
+    """Create the dataframes"""
 
     train_data, validation_data, test_data = set_random.set_random_data(dataframe)
-
-    train_data.to_csv("../data/mydata/train_data.csv", index=False)
-    validation_data.to_csv("../data/mydata/validation_data.csv", index=False)
-    test_data.to_csv("../data/mydata/test_data.csv", index=False)
+    
+    train_data.to_csv("../data/mydata/train_data.csv", header=False, index=False)
+    validation_data.to_csv("../data/mydata/validation_data.csv", header=False, index=False)
+    test_data.to_csv("../data/mydata/test_data.csv", header=False, index=False)

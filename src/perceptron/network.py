@@ -4,12 +4,13 @@ from sklearn.utils import shuffle
 
 from perceptron.layer import Layer
 from data_visualization.plots import Plot
+from terminal.arg_parsing import arg_parsing
 
 def one_hot(a: np.ndarray, num_classes: int):
     """Convert an array of integers into a one-hot encoded matrix."""
     return np.squeeze(np.eye(num_classes)[a.reshape(-1)]).astype(int)
 
-class Neural:
+class Network:
 
     def __init__(
         self,
@@ -25,7 +26,6 @@ class Neural:
         self.layers: list[Layer] = []
         self.losses = []
         self.val_losses = []
-        self.epochs = []
         self.accuracies = []
     
     def add_layer(
@@ -41,27 +41,28 @@ class Neural:
         self.layers.append(layer)
 
     def forward(self, X: np.ndarray) -> np.ndarray:
-        """Forward propagation through the neural network.
+        """Forward propagation through the network network.
 
         Args:
             X (np.ndarray): The Z data.
 
         Returns:
-            np.ndarray: The output of the neural network."""
+            np.ndarray: The output of the network network."""
 
         for layer in self.layers:
             X = layer.forward(X)
         return X
 
     def loss(self, P: np.ndarray, Y: np.ndarray) -> float:
-        """Computes the loss function for the neural network.
+        """Computes the loss function for the network network.
+            Binary cross-entropy loss.
 
         Args:
             P (np.ndarray): The predicted labels.
             Y (np.ndarray): The true labels.
 
         Returns:
-            float: The loss of the neural network."""
+            float: The loss of the network network."""
 
         epsilon = 1e-16  # to avoid log(0)
 
@@ -71,7 +72,7 @@ class Neural:
         return loss
     
     def backward(self, P: np.ndarray, Y: np.ndarray) -> None:
-        """Backward propagation through the neural network.
+        """Backward propagation through the network network.
 
         Args:
             P (np.ndarray): The predicted labels.
@@ -84,14 +85,14 @@ class Neural:
             gradient = layer.backward(self.learning_rate, gradient)
 
     def accuracy(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """Compute the accuracy of the neural network.
+        """Compute the accuracy of the network network.
 
         Args:
             X (np.ndarray): The Z data.
             Y (np.ndarray): The true labels.
 
         Returns:
-            float: The accuracy of the neural network."""
+            float: The accuracy of the network network."""
 
         P = self.forward(X)
         P = np.argmax(P, axis=1)
@@ -99,9 +100,10 @@ class Neural:
         accuracy = sum(P == Y) / len(Y)
         print(f"Accuracy : {accuracy}")
 
-    def visualize(self, X:np.ndarray, Y:np.ndarray, X_test:np.ndarray, Y_test:np.ndarray, epoch:int) -> None:
-        """Visualize the neural network."""
+    def visualize(self, X:np.ndarray, Y:np.ndarray, X_test:np.ndarray, Y_test:np.ndarray) -> None:
+        """Visualize the network network."""
 
+        epoch = len(self.losses)
         if epoch == 0:
             print("x_train shape : ", X.shape)
             print("x_test shape : ", X_test.shape)
@@ -117,7 +119,6 @@ class Neural:
         print("epoch ", epoch + 1, "/", self.epoch, "- loss", "{:.4f}".format(self.loss(P, Y_one)), 
               "- val_loss", "{:.4f}".format(self.loss(self.forward(X_test), Y_test_one)))
         
-        self.epochs.append(epoch)
         self.losses.append(self.loss(P, Y_one))
         self.val_losses.append(self.loss(self.forward(X_test), Y_test_one))
 
@@ -131,7 +132,7 @@ class Neural:
         Returns:
             tuple[np.ndarray, np.ndarray]: The shuffled data."""
 
-        X, Y = shuffle(X, Y, random_state=42)
+        X, Y = shuffle(X, Y, random_state=24)
         return X, Y
 
     def get_batches(self, X: np.ndarray, Y: np.ndarray):
@@ -149,7 +150,7 @@ class Neural:
             yield X[i : i + self.batch_size], Y[i : i + self.batch_size]
 
     def train(self, X: np.ndarray, Y: np.ndarray, X_test:np.ndarray, Y_test:np.ndarray) -> None:
-        """Train the neural network.
+        """Train the network network.
         
         Args:
             X (np.ndarray): The Z data.
@@ -162,24 +163,26 @@ class Neural:
         """
         from perceptron.optimizer import Optimizer
 
+        args_parse = arg_parsing()
         opt = Optimizer()
+        
         # Convert Y["0", "1", ...] into float
-        Y = Y.astype(int)       
-        with ap.alive_bar(self.epoch, title="Training") as bar:
+        Y = Y.astype(int)
+        with ap.alive_bar(self.epoch, title="Training", enrich_print=False) as bar:
             for epoch in range(self.epoch):
                     for X_batch, Y_batch in self.get_batches(X, Y):
-
                         P = self.forward(X_batch)
                         self.backward(P, Y_batch)
 
-                    self.visualize(X, Y, X_test, Y_test, epoch)
-                    if (early_neural := opt.early_stop(self, self.val_losses, 10)) != None:
+                    self.visualize(X, Y, X_test, Y_test)
+                    if args_parse.early_stop and (early_network := opt.early_stop(self, self.val_losses, 10)) != None:
                         break
                     bar()
-        if early_neural:
-            self = early_neural
+        Plot(self.losses, self.val_losses).plots()
+        
+        if args_parse.early_stop and early_network:
+            self = early_network
         self.accuracy(X, Y)
-        Plot(self.epochs, self.losses, self.val_losses).plots()
 
     def predict(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Predict the labels of the data."""
