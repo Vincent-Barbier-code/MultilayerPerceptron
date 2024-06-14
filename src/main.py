@@ -30,7 +30,7 @@ def train(train_data: pd.DataFrame, test_data: pd.DataFrame) -> None:
     test_true = data_true(test_data.copy())
     test_data = data_feature(test_data)
 
-    network = Network(train_data.values, epoch=1000, learning_rate=0.004, batch_size=128)
+    network = Network(epoch=1000, learning_rate=0.004, batch_size=128)
     network.add_layer(32, "relu")
     network.add_layer(20, "sigmoid")
     network.add_layer(10, "sigmoid")

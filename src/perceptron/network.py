@@ -1,6 +1,7 @@
 import numpy as np
 import alive_progress as ap
 from sklearn.utils import shuffle
+import copy
 
 from perceptron.layer import Layer
 from data_visualization.plots import Plot
@@ -14,19 +15,20 @@ class Network:
 
     def __init__(
         self,
-        alpha: float = 0.1,
         epoch: int = 200,
+        learning_rate: float = 0.01,
         batch_size: int = 256,
-        learning_rate: float = 0.1,
+        patience: int = 10,
     ) -> None:
-        self.alpha = alpha
         self.epoch = epoch
-        self.batch_size = batch_size
         self.learning_rate = learning_rate
+        self.batch_size = batch_size
         self.layers: list[Layer] = []
         self.losses = []
         self.val_losses = []
         self.accuracies = []
+        self.patience = patience
+        self.best_network = None
     
     def add_layer(
         self,
@@ -149,6 +151,21 @@ class Network:
         for i in range(0, len(X), self.batch_size):
             yield X[i : i + self.batch_size], Y[i : i + self.batch_size]
 
+    def keep_best_network(self, eS) -> bool:
+        """Keep the best network network.
+
+        Args:
+            network (Network): The network network to keep."""
+        
+        args_parse = arg_parsing()
+
+        if args_parse.early_stop:
+            if eS.early_stop(self, self.val_losses):
+                self.best_network = eS.best_network
+                print("Early stopping")
+                return True
+        return False
+
     def train(self, X: np.ndarray, Y: np.ndarray, X_test:np.ndarray, Y_test:np.ndarray) -> None:
         """Train the network network.
         
@@ -161,13 +178,13 @@ class Network:
         Returns:
             None: None.
         """
-        from perceptron.optimizer import Optimizer
 
-        args_parse = arg_parsing()
-        opt = Optimizer()
+        from perceptron.optimizer import EarlyStop
         
         # Convert Y["0", "1", ...] into float
         Y = Y.astype(int)
+        eS = EarlyStop(self.patience)
+
         with ap.alive_bar(self.epoch, title="Training", enrich_print=False) as bar:
             for epoch in range(self.epoch):
                     for X_batch, Y_batch in self.get_batches(X, Y):
@@ -175,13 +192,13 @@ class Network:
                         self.backward(P, Y_batch)
 
                     self.visualize(X, Y, X_test, Y_test)
-                    if args_parse.early_stop and (early_network := opt.early_stop(self, self.val_losses, 10)) != None:
+                    if self.keep_best_network(eS):
                         break
                     bar()
         Plot(self.losses, self.val_losses).plots()
         
-        if args_parse.early_stop and early_network:
-            self = early_network
+        if self.best_network:
+            self = self.best_network
         self.accuracy(X, Y)
 
     def predict(self, X: np.ndarray, Y: np.ndarray) -> None:

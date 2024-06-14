@@ -78,6 +78,7 @@ def split(args: argparse.Namespace) -> None:
         args.file = "../data/data.csv"
     
     import data_processing as process
+    
     dataframe = process.extract.Extract(args.file).data
     process.split.create_dfs(dataframe)
     exit(0)
