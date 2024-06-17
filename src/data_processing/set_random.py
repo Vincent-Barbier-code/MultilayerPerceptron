@@ -1,13 +1,12 @@
 """Module for setting random training and validation data"""
 
-import numpy as np
 import pandas as pd
 
 
 def shuffle_data(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Shuffle the data"""
 
-    return dataframe.sample(frac=1).reset_index(drop=True)
+    return dataframe.sample(frac=1, random_state=424).reset_index(drop=True)
 
 def sort_data(dataframe: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Sort the data"""
@@ -22,8 +21,6 @@ def set_random_data(
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     
     dfB, dfM = sort_data(dataframe)
-    # dfB = shuffle_data(dfB)
-    # dfM = shuffle_data(dfM)
 
     dfB_train = dfB.sample(frac=frac)
     dfM_train = dfM.sample(frac=frac)
@@ -31,8 +28,8 @@ def set_random_data(
     dfB_validation = dfB.drop(dfB_train.index)
     dfM_validation = dfM.drop(dfM_train.index)
 
-    dfB_test = dfB_train.sample(frac=0.1)
-    dfM_test = dfM_train.sample(frac=0.1)
+    dfB_test = dfB_train.sample(frac=0.3)
+    dfM_test = dfM_train.sample(frac=0.3)
 
     dfB_train = dfB_train.drop(dfB_test.index)
     dfM_train = dfM_train.drop(dfM_test.index)

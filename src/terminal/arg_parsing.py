@@ -97,11 +97,7 @@ def train(args: argparse.Namespace) -> None:
         if not os.path.exists(args.file2):
             print("No file found for training. Split the data first.")
             exit(1)
-    if args.early_stop:
-        if args.early_stop == None:
-            args.early_stop = False
-        else:
-            args.early_stop = True
+    args.early_stop = False if args.early_stop == None else True
     
     create_dirs(["../data/mymodels"])
     if os.path.exists("../data/mymodels/network.pkl"):

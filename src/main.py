@@ -30,20 +30,20 @@ def train(train_data: pd.DataFrame, test_data: pd.DataFrame) -> None:
     test_true = data_true(test_data.copy())
     test_data = data_feature(test_data)
 
-    network = Network(epoch=1000, learning_rate=0.004, batch_size=128)
-    network.add_layer(32, "relu")
-    network.add_layer(20, "sigmoid")
-    network.add_layer(10, "sigmoid")
+    network = Network(epoch=1000, learning_rate=0.008, batch_size=93)
+    network.add_layer(40, "relu")
+    
+    network.add_layer(78, "relu")
+    network.add_layer(5, "sigmoid")
     network.add_layer(2, "softmax")
     network.train(train_data.values, train_true.values, test_data.values, test_true.values)
 
-    # network = Network(train_data.values, epoch=5000, learning_rate=0.001, batch_size=16)
-    # network.add_layer(30, "relu")
-    # network.add_layer(20, "relu")
-    # network.add_layer(10, "relu")
+    # network = Network(epoch=5000, learning_rate=0.00, batch_size=78)
+    # # network.add_layer(30, "relu")
+    # # network.add_layer(20, "tanh")
+    # network.add_layer(7, "tanh")
     # network.add_layer(2, "softmax")
     # network.train(train_data.values, train_true.values, test_data.values, test_true.values)
-
     pickle.dump(network, open("../data/mymodels/network.pkl", "wb"))
     print("> saving model '../data/mymodels/network.pkl' to disk...")
 
@@ -62,7 +62,7 @@ def predict(validation_data: pd.DataFrame) -> None:
 def main() -> None:
     """Main function"""
 
-    np.random.seed(424)    
+    np.random.seed(21098)    
     # print(np.random.get_state())
     args = arg_parsing()
     execute(args)

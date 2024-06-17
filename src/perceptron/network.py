@@ -1,7 +1,6 @@
 import numpy as np
 import alive_progress as ap
 from sklearn.utils import shuffle
-import copy
 
 from perceptron.layer import Layer
 from data_visualization.plots import Plot
@@ -19,6 +18,7 @@ class Network:
         learning_rate: float = 0.01,
         batch_size: int = 256,
         patience: int = 10,
+        optimizer = None
     ) -> None:
         self.epoch = epoch
         self.learning_rate = learning_rate
@@ -27,8 +27,9 @@ class Network:
         self.losses = []
         self.val_losses = []
         self.accuracies = []
-        self.patience = patience
+        self.patience = patience # early stopping
         self.best_network = None
+        self.optimizer = optimizer
     
     def add_layer(
         self,
@@ -70,7 +71,7 @@ class Network:
 
         loss = -np.mean(
             Y * np.log(P + epsilon) + (1 - Y) * np.log(1 - P + epsilon),
-        )
+        ) 
         return loss
     
     def backward(self, P: np.ndarray, Y: np.ndarray) -> None:
@@ -155,11 +156,12 @@ class Network:
         """Keep the best network network.
 
         Args:
-            network (Network): The network network to keep."""
+            network (Network): The network network to keep.
         
-        args_parse = arg_parsing()
-
-        if args_parse.early_stop:
+        Returns:
+            bool: If the network network should stop early.
+        """
+        if arg_parsing().early_stop:
             if eS.early_stop(self, self.val_losses):
                 self.best_network = eS.best_network
                 print("Early stopping")
@@ -186,7 +188,7 @@ class Network:
         eS = EarlyStop(self.patience)
 
         with ap.alive_bar(self.epoch, title="Training", enrich_print=False) as bar:
-            for epoch in range(self.epoch):
+            for _ in range(self.epoch):
                     for X_batch, Y_batch in self.get_batches(X, Y):
                         P = self.forward(X_batch)
                         self.backward(P, Y_batch)
@@ -195,11 +197,10 @@ class Network:
                     if self.keep_best_network(eS):
                         break
                     bar()
-        Plot(self.losses, self.val_losses).plots()
+        # Plot(self.losses, self.val_losses).plots()
         
         if self.best_network:
-            self = self.best_network
-        self.accuracy(X, Y)
+            self.layers = self.best_network
 
     def predict(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Predict the labels of the data."""

@@ -1,5 +1,7 @@
 import copy
+
 from perceptron.network import Network
+
 class EarlyStop:
 	"""Early stopping class."""
 
@@ -16,9 +18,9 @@ class EarlyStop:
 			val_losses (list[float]): The validation losses.
 			patience (int): The patience.
 
-		Returns:
-			None: If the network network should not stop early.
-			Network: If the network network should stop early. The network network to use.
+		Returns:	
+			bool: If the network network should stop early.
+			
 		"""
 		
 		min_val_loss = min(val_losses)
@@ -26,7 +28,7 @@ class EarlyStop:
 			self.cmp += 1
 		if val_losses[-1] == min_val_loss:
 			self.cmp = 0
-			self.best_network = copy.deepcopy(network)
+			self.best_network = copy.deepcopy(network.layers)
 		if self.cmp == self.patience:
 			return True
 		return False
