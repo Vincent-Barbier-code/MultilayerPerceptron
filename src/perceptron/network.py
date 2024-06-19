@@ -4,6 +4,7 @@ from sklearn.utils import shuffle
 
 from perceptron.layer import Layer
 from data_visualization.plots import Plot
+from perceptron.optimizer import Optimizer, create_optimizer
 from terminal.arg_parsing import arg_parsing
 
 def one_hot(a: np.ndarray, num_classes: int):
@@ -83,9 +84,10 @@ class Network:
 
         Yreshape = one_hot(Y, 2)
         gradient = P - Yreshape
+        optimizer = create_optimizer(self.optimizer, self.learning_rate)
 
         for layer in reversed(self.layers):
-            gradient = layer.backward(self.learning_rate, gradient)
+            gradient = layer.backward(optimizer, gradient)
 
     def accuracy(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Compute the accuracy of the network network.

@@ -1,6 +1,6 @@
 import copy
+import numpy as np
 
-from perceptron.network import Network
 
 class EarlyStop:
 	"""Early stopping class."""
@@ -10,7 +10,7 @@ class EarlyStop:
 		self.patience = patience
 		self.best_network = None
 
-	def early_stop(self, network: Network, val_losses: list[float]) -> bool:
+	def early_stop(self, network, val_losses: list[float]) -> bool:
 		"""Early stopping function.
 
 		Args:
@@ -37,15 +37,16 @@ class EarlyStop:
 class Optimizer:
 	"""Class to optimize the network network."""
 
-	def __init__(self, Beta, v, learning_rate) -> None:
-		self.best_network = None
-		self.cmp = 0
-		self.Beta = Beta
-		self.v = v
+	def __init__(self, learning_rate) -> None:
 		self.learning_rate = learning_rate
 
 
+	def update(self, W, bias, dW: np.ndarray, dbias: np.ndarray) -> None:
+     
+		W -= self.learning_rate * dW
+		bias -= self.learning_rate * dbias
 
+		return W, bias
 	
 # class Adam(Optimizer):
 
@@ -56,18 +57,45 @@ class Optimizer:
 class Momentum(Optimizer):
 	"""Momentum optimizer class"""
 
-	def __init__(self, Beta, learning_rate) -> None:
-		super().__init__(Beta, 0, learning_rate)
+	def __init__(self, learning_rate: float) -> None:
+		super().__init__(learning_rate)
+		self.Beta = 0.9
+		self.v = []
 
-	def update(self, network: Network) -> None:
+	def update(self, W, bias, dW, dbias) -> None:
 		"""Update the network network.
 
 		Args:
 			network (Network): The network network.
 		"""
-		for i, layer in enumerate(network.layers):
-			if i == 0:
-				continue
-			layer.weights += self.learning_rate * layer.dweights + self.Beta * self.v
-			layer.biases += self.learning_rate * layer.dbiases + self.Beta * self.v
-		self.v = self.learning_rate * layer.dweights + self.Beta * self.v
+  
+		if not self.v:
+			self.v = [np.zeros_like(dW), np.zeros_like(bias)]
+		self.v[0] = self.Beta * self.v[0] + (1 - self.Beta) * dW
+		self.v[1] = self.Beta * self.v[1] + (1 - self.Beta) * bias
+		W -= self.learning_rate * self.v[0]
+		bias -= self.learning_rate * self.v[1]
+
+		return W, bias
+		
+   
+def create_optimizer(name: str | None, learning_rate: float) -> Optimizer:
+	"""Create an optimizer.
+
+	Args:
+		optimizer (str): The optimizer.
+		learning_rate (float): The learning rate.
+
+	Returns:
+		Optimizer: The optimizer.
+	"""
+	opt = [None, "momentum"]
+	optimizer = {
+		None: Optimizer,
+		"momentum": Momentum,
+	}
+	if name not in opt:
+		raise ValueError(f"Invalid optimizer: {name}")
+	else:
+		
+		return optimizer[name](learning_rate)

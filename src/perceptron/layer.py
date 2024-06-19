@@ -1,5 +1,7 @@
 import numpy as np
 
+from perceptron.optimizer import Optimizer
+
 
 def sigmoid(X: np.ndarray) -> np.ndarray:
     """Applies the sigmoid activation function to an input array.
@@ -195,7 +197,7 @@ class Layer:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
         return X
 
-    def backward(self, learning_rate: float, gradient: np.ndarray) -> np.ndarray:
+    def backward(self, optimizer: Optimizer, gradient: np.ndarray) -> np.ndarray:
         """Performs the backward pass for the layer.
 
         Args:
@@ -205,7 +207,7 @@ class Layer:
         Returns:
             np.ndarray: The gradient of the loss function.
         """
-
+        
         activation = None
         match self.f_activation:
             case "sigmoid":
@@ -219,12 +221,13 @@ class Layer:
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
 
+        
         ngradient = gradient * activation
         dW = np.dot(self.input.T, ngradient)
         dbias = np.sum(ngradient, axis=0)
 
         dgradient = np.dot(ngradient, self.W.T)
-        self.W -= learning_rate * dW
-        self.bias -= learning_rate * dbias
+        self.W, self.bias = optimizer.update(self.W, self.bias, dW, dbias)
+
 
         return dgradient
