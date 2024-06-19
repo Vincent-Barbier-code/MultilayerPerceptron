@@ -41,14 +41,38 @@ class Optimizer:
 		self.learning_rate = learning_rate
 
 
-	def update(self, W, bias, dW: np.ndarray, dbias: np.ndarray) -> None:
+	def update(self, layer) -> None:
      
-		W -= self.learning_rate * dW
-		bias -= self.learning_rate * dbias
+		layer.W -= self.learning_rate * layer.dW
+		layer.bias -= self.learning_rate * layer.dbias
 
-		return W, bias
 	
-# class Adam(Optimizer):
+class Adam(Optimizer):
+
+	def __init__(self, learning_rate: float) -> None:
+		super().__init__(learning_rate)
+		self.beta1 = 0.9
+		self.beta2 = 0.999
+		self.epsilon = 1e-8
+		self.m = []
+		self.v = []
+	
+	def update(self, layer):
+		self.m.append(np.zeros(layer.W.shape))
+		self.v.append(np.zeros(layer.W.shape))
+		self.m[-1] = self.beta1 * self.m[-1] + (1 - self.beta1) * layer.dW
+		self.v[-1] = self.beta2 * self.v[-1] + (1 - self.beta2) * layer.dW ** 2
+		m_hat = self.m[-1] / (1 - self.beta1)
+		v_hat = self.v[-1] / (1 - self.beta2)
+		layer.W -= self.learning_rate * m_hat / (np.sqrt(v_hat) + self.epsilon)
+		self.m.append(np.zeros(layer.bias.shape))
+		self.v.append(np.zeros(layer.bias.shape))
+		self.m[-1] = self.beta1 * self.m[-1] + (1 - self.beta1) * layer.dbias
+		self.v[-1] = self.beta2 * self.v[-1] + (1 - self.beta2) * layer.dbias ** 2
+		m_hat = self.m[-1] / (1 - self.beta1)
+		v_hat = self.v[-1] / (1 - self.beta2)
+		layer.bias -= self.learning_rate * m_hat / (np.sqrt(v_hat) + self.epsilon)
+
 
 
 # class Rmsprop(Optimizer):
@@ -62,24 +86,16 @@ class Momentum(Optimizer):
 		self.Beta = 0.9
 		self.v = []
 
-	def update(self, W, bias, dW, dbias) -> None:
-		"""Update the network network.
+	def update(self, layer):
+		"""Update the weights and biases of the layer.
 
 		Args:
-			network (Network): The network network.
+			layer (Layer): The layer.
 		"""
-  
-		if not self.v:
-			self.v = [np.zeros_like(dW), np.zeros_like(bias)]
-		self.v[0] = self.Beta * self.v[0] + (1 - self.Beta) * dW
-		self.v[1] = self.Beta * self.v[1] + (1 - self.Beta) * bias
-		W -= self.learning_rate * self.v[0]
-		bias -= self.learning_rate * self.v[1]
 
-		return W, bias
 		
    
-def create_optimizer(name: str | None, learning_rate: float) -> Optimizer:
+def create_optimizer(name: str, learning_rate: float) -> Optimizer:
 	"""Create an optimizer.
 
 	Args:
@@ -89,12 +105,12 @@ def create_optimizer(name: str | None, learning_rate: float) -> Optimizer:
 	Returns:
 		Optimizer: The optimizer.
 	"""
-	opt = [None, "momentum"]
 	optimizer = {
-		None: Optimizer,
-		"momentum": Momentum,
+		"None": Optimizer,
+		"Momentum": Momentum,
+		"Adam": Adam,
 	}
-	if name not in opt:
+	if name not in optimizer:
 		raise ValueError(f"Invalid optimizer: {name}")
 	else:
 		

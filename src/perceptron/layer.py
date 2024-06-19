@@ -223,11 +223,11 @@ class Layer:
 
         
         ngradient = gradient * activation
-        dW = np.dot(self.input.T, ngradient)
-        dbias = np.sum(ngradient, axis=0)
+        self.dW = np.dot(self.input.T, ngradient)
+        self.dbias = np.sum(ngradient, axis=0)
 
         dgradient = np.dot(ngradient, self.W.T)
-        self.W, self.bias = optimizer.update(self.W, self.bias, dW, dbias)
+        optimizer.update(self)
 
 
         return dgradient

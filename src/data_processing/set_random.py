@@ -6,7 +6,7 @@ import pandas as pd
 def shuffle_data(dataframe: pd.DataFrame) -> pd.DataFrame:
     """Shuffle the data"""
 
-    return dataframe.sample(frac=1, random_state=424).reset_index(drop=True)
+    return dataframe.sample(frac=1).reset_index(drop=True)
 
 def sort_data(dataframe: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Sort the data"""
