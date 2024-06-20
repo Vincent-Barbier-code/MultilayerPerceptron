@@ -15,6 +15,7 @@ def execute(args: argparse.Namespace) -> None:
         "train": train,
         "predict": predict,
         "clean": clean,
+        "benchmark": benchmark,
     }
 
     for arg, func in commands.items():
@@ -53,11 +54,9 @@ def arg_parsing() -> argparse.Namespace:
     parser.add_argument(
         "--early_stop", action="store_true", help="Early stop the training"
     )
-    parser.add_argument(
-        "--optimizer", type=str, help="The optimizer to use"
-    )
     parser.add_argument("--predict", action="store_true", help="Predict the validation data")
     parser.add_argument("--clean", action="store_true", help="Clean up temporary files")
+    parser.add_argument("--benchmark", action="store_true", help="Benchmark the network network")
 
     return parser.parse_args()
 
@@ -87,31 +86,17 @@ def split(args: argparse.Namespace) -> None:
 def train(args: argparse.Namespace) -> None:
     """Train the network network model"""
     print("Training the network network model...")
-    if args.file is None:
-        args.file = "../data/mydata/train_data.csv"
-        if not os.path.exists(args.file):
-            print("No file found for training. Split the data first.")
-            exit(1)
-    if args.file2 is None:
-        args.file2 = "../data/mydata/test_data.csv"
-        if not os.path.exists(args.file2):
-            print("No file found for training. Split the data first.")
-            exit(1)
+    args.file = verif_file(args.file)
+    args.file2 = verif_file(args.file2, "../data/mydata/test_data.csv")
     args.early_stop = False if args.early_stop == None else True
     
     create_dirs(["../data/mymodels"])
-    if os.path.exists("../data/mymodels/network.pkl"):
-        os.remove("../data/mymodels/network.pkl")
-        
 
 def predict(args: argparse.Namespace) -> None:
     """Predict the validation data"""
     print("Predicting the validation data...")
-    if args.file is None:
-        args.file = "../data/mydata/validation_data.csv"
-        if not os.path.exists(args.file):
-            print("No file found for predicting. Split the data first.")
-            exit(1)
+    args.file = verif_file(args.file, "../data/mydata/validation_data.csv")
+
     if not os.path.exists("../data/mymodels/network.pkl"):
         print("No model found. Train the model first.")
         exit(1)
@@ -124,8 +109,24 @@ def clean() -> None:
     subprocess.run(["rm", "-rf", "../data/mymodels"])
     exit(0)
 
-
 def create_dirs(dir_list):
     """Helper function to create directories."""
     for directory in dir_list:
         os.makedirs(directory, exist_ok=True)
+
+def benchmark(args: argparse.Namespace) -> None:
+    """Benchmark the network network"""
+    print("Benchmarking the network network...")
+    args.file = verif_file(args.file)
+    args.file2 = verif_file(args.file2, "../data/mydata/test_data.csv")
+    
+    create_dirs(["../data/mymodels"])
+    
+def verif_file(file, default="../data/mydata/train_data.csv") -> str:
+
+    if file is None:
+        file = default
+        if not os.path.exists(file):
+            print("No file found for training. Split the data first.")
+            exit(1)
+    return file

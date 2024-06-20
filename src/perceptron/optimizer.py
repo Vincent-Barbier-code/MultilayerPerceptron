@@ -35,18 +35,27 @@ class EarlyStop:
 
 
 class Optimizer:
-	"""Class to optimize the network network."""
+	"""Class to optimize the network network.
+		Default optimizer is Stochastic Gradient Descent (SGD).
+	"""
 
 	def __init__(self, learning_rate) -> None:
 		self.learning_rate = learning_rate
 
 
 	def update(self, layer) -> None:
-     
 		layer.W -= self.learning_rate * layer.dW
 		layer.bias -= self.learning_rate * layer.dbias
 
-	
+	# def update_state(self, 
+
+def calc_prev(prev, beta, grad):
+	prev = beta * prev + (1 - beta) * grad
+	return prev
+
+def hat(prev, beta):
+	return prev / (1 - beta)
+
 class Adam(Optimizer):
 
 	def __init__(self, learning_rate: float) -> None:
@@ -58,26 +67,45 @@ class Adam(Optimizer):
 		self.v = []
 	
 	def update(self, layer):
+		
 		self.m.append(np.zeros(layer.W.shape))
 		self.v.append(np.zeros(layer.W.shape))
-		self.m[-1] = self.beta1 * self.m[-1] + (1 - self.beta1) * layer.dW
-		self.v[-1] = self.beta2 * self.v[-1] + (1 - self.beta2) * layer.dW ** 2
-		m_hat = self.m[-1] / (1 - self.beta1)
-		v_hat = self.v[-1] / (1 - self.beta2)
+		
+		self.m[-1] = calc_prev(self.m[-1], self.beta1, layer.dW)
+		self.v[-1] = calc_prev(self.v[-1], self.beta2, layer.dW**2)
+
+		m_hat = hat(self.m[-1], self.beta1)
+		v_hat = hat(self.v[-1], self.beta2)
 		layer.W -= self.learning_rate * m_hat / (np.sqrt(v_hat) + self.epsilon)
+
 		self.m.append(np.zeros(layer.bias.shape))
 		self.v.append(np.zeros(layer.bias.shape))
-		self.m[-1] = self.beta1 * self.m[-1] + (1 - self.beta1) * layer.dbias
-		self.v[-1] = self.beta2 * self.v[-1] + (1 - self.beta2) * layer.dbias ** 2
-		m_hat = self.m[-1] / (1 - self.beta1)
-		v_hat = self.v[-1] / (1 - self.beta2)
+
+		self.m[-1] = calc_prev(self.m[-1], self.beta1, layer.dbias)
+		self.v[-1] = calc_prev(self.v[-1], self.beta2, layer.dbias**2)
+		
+		m_hat = hat(self.m[-1], self.beta1)
+		v_hat = hat(self.v[-1], self.beta2)
 		layer.bias -= self.learning_rate * m_hat / (np.sqrt(v_hat) + self.epsilon)
 
+class Rmsprop(Optimizer):
 
+	def __init__(self, learning_rate) -> None:
+		super().__init__(learning_rate)
+		self.beta = 0.9
+		self.epsilon = 1e-8
+		self.prev_W = []
+		self.prev_bias = []
 
-# class Rmsprop(Optimizer):
+	def update(self, layer):
+		self.prev_W.append(np.zeros(layer.W.shape))
+		self.prev_bias.append(np.zeros(layer.bias.shape))
+		self.prev_W[-1] = calc_prev(self.prev_W[-1], self.beta, layer.dW ** 2)
+		self.prev_bias[-1] = calc_prev(self.prev_bias[-1], self.beta, layer.dbias ** 2)
+		layer.W -= self.learning_rate * layer.dW / (np.sqrt(self.prev_W[-1]) + self.epsilon)
+		layer.bias -= self.learning_rate * layer.dbias / (np.sqrt(self.prev_bias[-1]) + self.epsilon)
 
-
+	
 class Momentum(Optimizer):
 	"""Momentum optimizer class"""
 
@@ -106,9 +134,10 @@ def create_optimizer(name: str, learning_rate: float) -> Optimizer:
 		Optimizer: The optimizer.
 	"""
 	optimizer = {
-		"None": Optimizer,
+		"SGD": Optimizer,
 		"Momentum": Momentum,
 		"Adam": Adam,
+		"RMSprop": Rmsprop,
 	}
 	if name not in optimizer:
 		raise ValueError(f"Invalid optimizer: {name}")

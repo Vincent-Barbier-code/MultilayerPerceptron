@@ -3,7 +3,6 @@ import alive_progress as ap
 from sklearn.utils import shuffle
 
 from perceptron.layer import Layer
-from data_visualization.plots import Plot
 from perceptron.optimizer import create_optimizer
 from terminal.arg_parsing import arg_parsing
 
@@ -19,7 +18,7 @@ class Network:
         learning_rate: float = 0.01,
         batch_size: int = 256,
         patience: int = 10,
-        optimizer = "None"
+        optimizer = "SGD"
     ) -> None:
         self.epoch = epoch
         self.learning_rate = learning_rate
@@ -199,7 +198,6 @@ class Network:
                     if self.keep_best_network(eS):
                         break
                     bar()
-        # Plot(self.losses, self.val_losses).plots()
         
         if self.best_network:
             self.layers = self.best_network
