@@ -26,20 +26,23 @@ def create_dfs(dataframe: pd.DataFrame) -> pd.DataFrame:
     train_data.to_csv("../data/mydata/train_data.csv", header=False, index=False)
     validation_data.to_csv("../data/mydata/validation_data.csv", header=False, index=False)
 
-def create_test_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def create_test_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     
     dfB, dfM = sort_data(df)
-    frac = 0.8
+    frac = 0.7
 
-    dfB_train = dfB.sample(frac=frac, random_state=42)
-    dfM_train = dfM.sample(frac=frac, random_state=42)
+    dfB_train = dfB.sample(frac=frac, random_state=41)
+    dfM_train = dfM.sample(frac=frac, random_state=41)
+
     dfB_test = dfB.drop(dfB_train.index)
     dfM_test = dfM.drop(dfM_train.index)
 
     test_data = pd.concat([dfB_test, dfM_test])
-    test_data = test_data.sample(frac=1, random_state=42).reset_index(drop=True)
-    
+    test_data = test_data.sample(frac=1, random_state=41).reset_index(drop=True)
+
     test_true = data_true(test_data.copy())
     test_data = data_feature(test_data)
-    
-    return test_data, test_true
+
+    df = pd.concat([dfB_train, dfM_train])
+
+    return test_data, test_true, df

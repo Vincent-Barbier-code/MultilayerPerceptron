@@ -25,11 +25,11 @@ def loss_plot(network: Network) -> None:
     # fig = lineplot.get_figure()
     plt.show()
 
-def bench_plots(networks: Network) -> None:
+def bench_plots(networks: list[Network]) -> None:
     """Plot the benchmark"""
     
     fig, ax = plt.subplots()
-    for name, network in networks.items():
+    for network, name in zip(networks, ["SGD", "Momentum", "Adam", "Rmsprop"]):
         ax.plot(range(0, len(network.losses)), network.losses, label=name)
     ax.set(xlabel="Epochs", ylabel="Loss")
     ax.legend()

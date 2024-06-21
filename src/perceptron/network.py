@@ -19,7 +19,6 @@ class Network:
         learning_rate: float = 0.01,
         batch_size: int = 256,
         patience: int = 10,
-        optimizer = "SGD"
     ) -> None:
         self.epoch = epoch
         self.learning_rate = learning_rate
@@ -30,7 +29,6 @@ class Network:
         self.accuracies = []
         self.patience = patience # early stopping
         self.best_network = None
-        self.optimizer = optimizer
     
     def add_layer(
         self,
@@ -75,7 +73,7 @@ class Network:
         ) 
         return loss
     
-    def backward(self, P: np.ndarray, Y: np.ndarray) -> None:
+    def backward(self, P: np.ndarray, Y: np.ndarray, opt:str) -> None:
         """Backward propagation through the network network.
 
         Args:
@@ -84,7 +82,7 @@ class Network:
 
         Yreshape = one_hot(Y, 2)
         gradient = P - Yreshape
-        optimizer = create_optimizer(self.optimizer, self.learning_rate)
+        optimizer = create_optimizer(opt, self.learning_rate)
 
         for layer in reversed(self.layers):
             gradient = layer.backward(optimizer, gradient)
@@ -108,8 +106,10 @@ class Network:
     def visualize(self, X:np.ndarray, Y:np.ndarray, X_test:np.ndarray, Y_test:np.ndarray) -> None:
         """Visualize the network network."""
 
+        bench = arg_parsing().benchmark
+        
         epoch = len(self.losses)
-        if epoch == 0:
+        if epoch == 0 and not bench:
             print("x_train shape : ", X.shape)
             print("x_test shape : ", X_test.shape)
 
@@ -121,8 +121,9 @@ class Network:
         Y_test = Y_test.astype(int)
         Y_test_one = one_hot(Y_test, 2)
         
-        print("epoch ", epoch + 1, "/", self.epoch, "- loss", "{:.4f}".format(self.loss(P, Y_one)), 
-              "- val_loss", "{:.4f}".format(self.loss(self.forward(X_test), Y_test_one)))
+        if not bench:
+            print("epoch ", epoch + 1, "/", self.epoch, "- loss", "{:.4f}".format(self.loss(P, Y_one)), 
+                  "- val_loss", "{:.4f}".format(self.loss(self.forward(X_test), Y_test_one)))
         
         self.losses.append(self.loss(P, Y_one))
         self.val_losses.append(self.loss(self.forward(X_test), Y_test_one))
@@ -170,7 +171,7 @@ class Network:
                 return True
         return False
         
-    def train(self, X: np.ndarray, Y: np.ndarray, X_test:np.ndarray, Y_test:np.ndarray) -> None:
+    def train(self, X: np.ndarray, Y: np.ndarray, X_test:np.ndarray, Y_test:np.ndarray, opt:str="SGD") -> None:
         """Train the network network.
         
         Args:
@@ -193,7 +194,7 @@ class Network:
             for _ in range(self.epoch):
                     for X_batch, Y_batch in self.get_batches(X, Y):
                         P = self.forward(X_batch)
-                        self.backward(P, Y_batch)
+                        self.backward(P, Y_batch, opt)
 
                     self.visualize(X, Y, X_test, Y_test)
                     if self.keep_best_network(eS):

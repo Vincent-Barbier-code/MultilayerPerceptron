@@ -3,11 +3,6 @@
 import pandas as pd
 
 
-def shuffle_data(dataframe: pd.DataFrame) -> pd.DataFrame:
-    """Shuffle the data"""
-
-    return dataframe.sample(frac=1).reset_index(drop=True)
-
 def sort_data(dataframe: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Sort the data"""
 
@@ -31,7 +26,7 @@ def set_random_data(
     train_data = pd.concat([dfB_train, dfM_train])
     validation_data = pd.concat([dfB_validation, dfM_validation])
 
-    train_data = shuffle_data(train_data)
-    validation_data = shuffle_data(validation_data)
+    train_data =  dataframe.sample(frac=1).reset_index(drop=True)
+    validation_data = dataframe.sample(frac=1).reset_index(drop=True)
 
     return train_data, validation_data

@@ -56,6 +56,7 @@ def hat(prev, beta):
 	return prev / (1 - beta)
 
 class Adam(Optimizer):
+	"""Adam optimizer class"""
 
 	def __init__(self, learning_rate: float) -> None:
 		super().__init__(learning_rate)
@@ -88,8 +89,9 @@ class Adam(Optimizer):
 		layer.bias -= self.learning_rate * m_hat / (np.sqrt(v_hat) + self.epsilon)
 
 class Rmsprop(Optimizer):
+	"""Rmsprop optimizer class"""
 
-	def __init__(self, learning_rate) -> None:
+	def __init__(self, learning_rate: float) -> None:
 		super().__init__(learning_rate)
 		self.beta = 0.9
 		self.epsilon = 1e-8
@@ -99,8 +101,10 @@ class Rmsprop(Optimizer):
 	def update(self, layer):
 		self.prev_W.append(np.zeros(layer.W.shape))
 		self.prev_bias.append(np.zeros(layer.bias.shape))
+
 		self.prev_W[-1] = calc_prev(self.prev_W[-1], self.beta, layer.dW ** 2)
 		self.prev_bias[-1] = calc_prev(self.prev_bias[-1], self.beta, layer.dbias ** 2)
+
 		layer.W -= self.learning_rate * layer.dW / (np.sqrt(self.prev_W[-1]) + self.epsilon)
 		layer.bias -= self.learning_rate * layer.dbias / (np.sqrt(self.prev_bias[-1]) + self.epsilon)
 
@@ -120,6 +124,13 @@ class Momentum(Optimizer):
 			layer (Layer): The layer.
 		"""
 
+		self.v.append(np.zeros(layer.W.shape))
+		self.v[-1] = self.Beta * self.v[-1] - self.learning_rate * layer.dW
+		layer.W += self.v[-1]
+
+		self.v.append(np.zeros(layer.bias.shape))
+		self.v[-1] = self.Beta * self.v[-1] - self.learning_rate * layer.dbias
+		layer.bias += self.v[-1]
 		
    
 def create_optimizer(name: str, learning_rate: float) -> Optimizer:
@@ -132,11 +143,12 @@ def create_optimizer(name: str, learning_rate: float) -> Optimizer:
 	Returns:
 		Optimizer: The optimizer.
 	"""
+
 	optimizer = {
 		"SGD": Optimizer,
 		"Momentum": Momentum,
 		"Adam": Adam,
-		"RMSprop": Rmsprop,
+		"Rmsprop": Rmsprop,
 	}
 	if name not in optimizer:
 		raise ValueError(f"Invalid optimizer: {name}")
