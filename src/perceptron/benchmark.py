@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import copy
 
 from perceptron.network import Network
 from data_processing.split import create_test_data, data_true, data_feature
@@ -7,11 +8,12 @@ from data_visualization.plots import bench_plots
 
 def create_networks() -> list[Network]:
 	"""Create networks with differents optimizers"""
-	networks = [Network(epoch=1000, learning_rate=0.001, batch_size=16) for _ in range(4)]
-	for network in networks:
-		network.add_layer(24, "sigmoid")
-		network.add_layer(24, "sigmoid")
-		network.add_layer(2, "softmax")
+	network = Network(epoch=1000, learning_rate=0.001, batch_size=16)
+	network.add_layer(24, "sigmoid")
+	network.add_layer(24, "sigmoid")
+	network.add_layer(2, "softmax")
+	networks = [network, copy.deepcopy(network), copy.deepcopy(network), copy.deepcopy(network)]
+
 	return networks
 
 def benchmark(train_data: pd.DataFrame, validation_data: pd.DataFrame) -> None:

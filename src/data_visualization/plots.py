@@ -9,7 +9,8 @@ from perceptron.network import Network
 
 
 def loss_plot(network: Network) -> None:
-    """Plot the network network."""
+    """Plot the network losses"""
+
     losses = network.losses
     val_losses = network.val_losses
 
@@ -22,7 +23,6 @@ def loss_plot(network: Network) -> None:
     plt.text(epochs[min_val_loss_index], min_val_loss, f"min loss: {min_val_loss:.2f}", fontsize=12)
     lineplot.set(xlabel="Epochs", ylabel="Loss")
 
-    # fig = lineplot.get_figure()
     plt.show()
 
 def bench_plots(networks: list[Network]) -> None:
@@ -33,6 +33,7 @@ def bench_plots(networks: list[Network]) -> None:
         ax.plot(range(0, len(network.losses)), network.losses, label=name)
     ax.set(xlabel="Epochs", ylabel="Loss")
     ax.legend()
+    
     plt.show()
         
 

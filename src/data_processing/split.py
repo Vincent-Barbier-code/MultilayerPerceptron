@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 from data_processing import set_random as set_random
 from data_processing.set_random import sort_data

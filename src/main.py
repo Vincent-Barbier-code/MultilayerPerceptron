@@ -22,6 +22,7 @@ def train(train_data: pd.DataFrame) -> None:
     Returns:
         None: None.
     """
+    
     # Test data
     test_data, test_true, train_data = create_test_data(train_data)
 

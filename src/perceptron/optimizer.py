@@ -115,7 +115,9 @@ class Momentum(Optimizer):
 	def __init__(self, learning_rate: float) -> None:
 		super().__init__(learning_rate)
 		self.Beta = 0.9
-		self.v = []
+		self.prev_W = None
+		self.prev_bias = None
+		self.dico = {}
 
 	def update(self, layer):
 		"""Update the weights and biases of the layer.
@@ -123,14 +125,17 @@ class Momentum(Optimizer):
 		Args:
 			layer (Layer): The layer.
 		"""
+		if self.prev_W is None:
+			self.prev_W = [np.zeros(layer.W.shape)]
+			self.prev_bias = [np.zeros(layer.bias.shape)]
+		
+		
 
-		self.v.append(np.zeros(layer.W.shape))
-		self.v[-1] = self.Beta * self.v[-1] - self.learning_rate * layer.dW
-		layer.W += self.v[-1]
+		self.prev_W[-1] = calc_prev(self.prev_W[-1], self.Beta, layer.dW)
+		self.prev_bias[-1] = calc_prev(self.prev_bias[-1], self.Beta, layer.dbias)
 
-		self.v.append(np.zeros(layer.bias.shape))
-		self.v[-1] = self.Beta * self.v[-1] - self.learning_rate * layer.dbias
-		layer.bias += self.v[-1]
+		layer.W -= self.prev_W[-1] * self.learning_rate
+		layer.bias -= self.prev_bias[-1] * self.learning_rate
 		
    
 def create_optimizer(name: str, learning_rate: float) -> Optimizer:
