@@ -18,7 +18,7 @@ def sort_data(dataframe: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
 
 def set_random_data(
         dataframe: pd.DataFrame, frac: float = 0.8
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     
     dfB, dfM = sort_data(dataframe)
 
@@ -28,18 +28,10 @@ def set_random_data(
     dfB_validation = dfB.drop(dfB_train.index)
     dfM_validation = dfM.drop(dfM_train.index)
 
-    dfB_test = dfB_train.sample(frac=0.20)
-    dfM_test = dfM_train.sample(frac=0.20)
-
-    dfB_train = dfB_train.drop(dfB_test.index)
-    dfM_train = dfM_train.drop(dfM_test.index)
-
     train_data = pd.concat([dfB_train, dfM_train])
     validation_data = pd.concat([dfB_validation, dfM_validation])
-    test_data = pd.concat([dfB_test, dfM_test])
 
     train_data = shuffle_data(train_data)
     validation_data = shuffle_data(validation_data)
-    test_data = shuffle_data(test_data)
 
-    return train_data, validation_data, test_data
+    return train_data, validation_data

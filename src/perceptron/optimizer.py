@@ -47,7 +47,6 @@ class Optimizer:
 		layer.W -= self.learning_rate * layer.dW
 		layer.bias -= self.learning_rate * layer.dbias
 
-	# def update_state(self, 
 
 def calc_prev(prev, beta, grad):
 	prev = beta * prev + (1 - beta) * grad

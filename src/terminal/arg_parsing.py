@@ -87,7 +87,6 @@ def train(args: argparse.Namespace) -> None:
     """Train the network network model"""
     print("Training the network network model...")
     args.file = verif_file(args.file)
-    args.file2 = verif_file(args.file2, "../data/mydata/test_data.csv")
     args.early_stop = False if args.early_stop == None else True
     
     create_dirs(["../data/mymodels"])
@@ -118,7 +117,7 @@ def benchmark(args: argparse.Namespace) -> None:
     """Benchmark the network network"""
     print("Benchmarking the network network...")
     args.file = verif_file(args.file)
-    args.file2 = verif_file(args.file2, "../data/mydata/test_data.csv")
+    args.file2 = verif_file(args.file2, "../data/mydata/validation_data.csv")
     
     create_dirs(["../data/mymodels"])
     

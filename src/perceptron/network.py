@@ -6,6 +6,7 @@ from perceptron.layer import Layer
 from perceptron.optimizer import create_optimizer
 from terminal.arg_parsing import arg_parsing
 
+
 def one_hot(a: np.ndarray, num_classes: int):
     """Convert an array of integers into a one-hot encoded matrix."""
     return np.squeeze(np.eye(num_classes)[a.reshape(-1)]).astype(int)
@@ -168,7 +169,7 @@ class Network:
                 print("Early stopping")
                 return True
         return False
-
+        
     def train(self, X: np.ndarray, Y: np.ndarray, X_test:np.ndarray, Y_test:np.ndarray) -> None:
         """Train the network network.
         

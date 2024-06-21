@@ -11,25 +11,23 @@ from perceptron.benchmark import benchmark
 from terminal.arg_parsing import arg_parsing
 from terminal.arg_parsing import execute
 from data_visualization.plots import loss_plot
+from data_processing.split import create_test_data
 
-def train(train_data: pd.DataFrame, test_data: pd.DataFrame) -> None:
+def train(train_data: pd.DataFrame) -> None:
     """Train the network network
 
     Args:
         train_data (pd.DataFrame): The train data.
-        test_data (pd.DataFrame): The test data.
 
     Returns:
         None: None.
     """
+    # Test data
+    test_data, test_true = create_test_data(train_data)
 
     # Train data
     train_true = data_true(train_data.copy())
     train_data = data_feature(train_data)
-
-    # Test data
-    test_true = data_true(test_data.copy())
-    test_data = data_feature(test_data)
 
     network = Network(epoch=1000, learning_rate=0.001, batch_size=16, optimizer="SGD")
     network.add_layer(30, "relu")
@@ -65,8 +63,7 @@ def main() -> None:
     # Train data
     if args.train:
         train_data = extract.Extract(args.file).data
-        test_data = extract.Extract(args.file2).data
-        train(train_data, test_data)
+        train(train_data)
 
     # Predict
     if args.predict:
@@ -76,8 +73,8 @@ def main() -> None:
     # Benchmark
     if args.benchmark:
         train_data = extract.Extract(args.file).data
-        test_data = extract.Extract(args.file2).data
-        benchmark(train_data, test_data)
+        validation_data = extract.Extract(args.file2).data
+        benchmark(train_data, validation_data)
 
 
 if __name__ == "__main__":

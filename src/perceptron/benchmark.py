@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from perceptron.network import Network
-from data_processing.split import data_true, data_feature
+from data_processing.split import create_test_data, data_true, data_feature
 from data_visualization.plots import bench_plots
 
 def create_networks() -> dict[str, Network]:
@@ -19,22 +19,25 @@ def create_networks() -> dict[str, Network]:
 
     return networks
 
-def benchmark(train_data: pd.DataFrame, test_data: pd.DataFrame) -> None:
+def benchmark(train_data: pd.DataFrame, validation_data: pd.DataFrame) -> None:
 	"""Benchmark the networks"""
+
+	# Test data
+	test_data, test_true = create_test_data(train_data)
 
 	# Train data
 	train_true = data_true(train_data.copy())
 	train_data = data_feature(train_data)
-
-	# Test data
-	test_true = data_true(test_data.copy())
-	test_data = data_feature(test_data)
+ 
+	# Validation data
+	validation_true = data_true(validation_data.copy())
+	validation_data = data_feature(validation_data)
 
 	networks = create_networks()
 	for name, network in networks.items():
 		network.train(train_data.values, train_true.values, test_data.values, test_true.values)
 		print(f"{name} done.")
-		network.predict(test_data.values, test_true.values)
+		network.predict(validation_data.values, validation_true.values)
 	bench_plots(networks)
 	
 	print("Benchmark done.")
