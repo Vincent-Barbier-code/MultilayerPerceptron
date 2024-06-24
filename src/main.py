@@ -30,8 +30,9 @@ def train(train_data: pd.DataFrame) -> None:
     train_true = data_true(train_data.copy())
     train_data = data_feature(train_data)
 
-    network = Network(epoch=1000, learning_rate=0.001, batch_size=16)
-    network.add_layer(24, "relu")
+    network = Network(epoch=1000, learning_rate=0.0314, batch_size=16)
+    network.add_layer(24, "sigmoid")
+    network.add_layer(24, "sigmoid")
     network.add_layer(24, "sigmoid")
     network.add_layer(2, "softmax")
     network.train(train_data.values, train_true.values, test_data.values, test_true.values)
@@ -55,7 +56,7 @@ def predict(validation_data: pd.DataFrame) -> None:
 def main() -> None:
     """Main function"""
 
-    np.random.seed(41)    
+    np.random.seed()    
 
     args = arg_parsing()
     execute(args)

@@ -2,11 +2,22 @@
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 # from alive_progress import ap
 from data_processing import extract as extract
 from perceptron.network import Network
 
+def plot_data(data: pd.DataFrame) -> None:
+    """Plot the data"""
+    
+
+    data = data.drop(data.columns[0], axis=1)
+    data.drop(data.columns[range(11, data.shape[1])], axis=1, inplace=True)
+    columns_names = ["diagnosis", "radius", "texture", "perimeter", "area", "smoothness", "compactness", "concavity", "concave points", "symmetry", "fractal_dimension"]
+    data.columns = columns_names
+    sns.pairplot(data, hue=data.columns[0])
+    plt.show()
 
 def loss_plot(network: Network) -> None:
     """Plot the network losses"""

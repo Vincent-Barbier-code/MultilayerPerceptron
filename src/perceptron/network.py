@@ -5,6 +5,7 @@ from sklearn.utils import shuffle
 from perceptron.layer import Layer
 from perceptron.optimizer import create_optimizer
 from terminal.arg_parsing import arg_parsing
+from perceptron.metrics import F1_score
 
 
 def one_hot(a: np.ndarray, num_classes: int):
@@ -212,3 +213,5 @@ class Network:
         Y_one = one_hot(Y, 2)
         print("Loss: ", self.loss(self.forward(X), Y_one))
         self.accuracy(X, Y)
+        F1_score(Y, self.forward(X))
+        print("F1 score: ", F1_score(Y, self.forward(X)))

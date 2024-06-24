@@ -8,7 +8,9 @@ from data_visualization.plots import bench_plots
 
 def create_networks() -> list[Network]:
 	"""Create networks with differents optimizers"""
-	network = Network(epoch=1000, learning_rate=0.001, batch_size=16)
+	
+	network = Network(epoch=1000, learning_rate=0.001, batch_size=32)
+	network.add_layer(24, "relu")
 	network.add_layer(24, "sigmoid")
 	network.add_layer(24, "sigmoid")
 	network.add_layer(2, "softmax")

@@ -26,7 +26,8 @@ def create_dfs(dataframe: pd.DataFrame) -> pd.DataFrame:
     validation_data.to_csv("../data/mydata/validation_data.csv", header=False, index=False)
 
 def create_test_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    
+    """Create the test data"""
+
     dfB, dfM = sort_data(df)
     frac = 0.7
 

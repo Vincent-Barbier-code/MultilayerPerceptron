@@ -32,6 +32,9 @@ For each of the above commands, you can specify the following optional arguments
 - --file: The path to the dataset. Default is data.csv
 - --early_stop: if set, the training will stop when the validation loss starts increasing
 
+To see a portion of the data set, you can run the following command:
+   python main.py --visualize --file /path/to/dataset
+
 ## Clean up
 1. Run the following command to remove the generated files
    python main.py --clean

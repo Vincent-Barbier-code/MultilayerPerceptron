@@ -48,8 +48,8 @@ class Optimizer:
 		layer.bias -= self.learning_rate * layer.dbias
 
 
-def calc_prev(prev, beta, grad):
-	prev = beta * prev + (1 - beta) * grad
+def calc_prev(prev, beta, deriv):
+	prev = beta * prev + (1 - beta) * deriv
 	return prev
 
 def hat(prev, beta):
@@ -95,18 +95,18 @@ class Rmsprop(Optimizer):
 		super().__init__(learning_rate)
 		self.beta = 0.9
 		self.epsilon = 1e-8
-		self.prev_W = []
-		self.prev_bias = []
+		self.dW = []
+		self.dbias = []
 
 	def update(self, layer):
-		self.prev_W.append(np.zeros(layer.W.shape))
-		self.prev_bias.append(np.zeros(layer.bias.shape))
+		self.dW.append(np.zeros(layer.W.shape))
+		self.dbias.append(np.zeros(layer.bias.shape))
 
-		self.prev_W[-1] = calc_prev(self.prev_W[-1], self.beta, layer.dW ** 2)
-		self.prev_bias[-1] = calc_prev(self.prev_bias[-1], self.beta, layer.dbias ** 2)
+		self.dW[-1] = calc_prev(self.dW[-1], self.beta, layer.dW ** 2)
+		self.dbias[-1] = calc_prev(self.dbias[-1], self.beta, layer.dbias ** 2)
 
-		layer.W -= self.learning_rate * layer.dW / (np.sqrt(self.prev_W[-1]) + self.epsilon)
-		layer.bias -= self.learning_rate * layer.dbias / (np.sqrt(self.prev_bias[-1]) + self.epsilon)
+		layer.W -= self.learning_rate * layer.dW / (np.sqrt(self.dW[-1]) + self.epsilon)
+		layer.bias -= self.learning_rate * layer.dbias / (np.sqrt(self.dbias[-1]) + self.epsilon)
 
 	
 class Momentum(Optimizer):
@@ -114,10 +114,8 @@ class Momentum(Optimizer):
 
 	def __init__(self, learning_rate: float) -> None:
 		super().__init__(learning_rate)
-		self.Beta = 0.9
-		self.prev_W = None
-		self.prev_bias = None
-		self.dico = {}
+		self.beta = 0.9
+		self.m = []
 
 	def update(self, layer):
 		"""Update the weights and biases of the layer.
@@ -125,17 +123,14 @@ class Momentum(Optimizer):
 		Args:
 			layer (Layer): The layer.
 		"""
-		if self.prev_W is None:
-			self.prev_W = [np.zeros(layer.W.shape)]
-			self.prev_bias = [np.zeros(layer.bias.shape)]
-		
-		
+		self.m.append(np.zeros(layer.W.shape))
+		self.m[-1] = calc_prev(self.m[-1], self.beta, layer.dW)
 
-		self.prev_W[-1] = calc_prev(self.prev_W[-1], self.Beta, layer.dW)
-		self.prev_bias[-1] = calc_prev(self.prev_bias[-1], self.Beta, layer.dbias)
-
-		layer.W -= self.prev_W[-1] * self.learning_rate
-		layer.bias -= self.prev_bias[-1] * self.learning_rate
+		m_hat = hat(self.m[-1], self.beta)
+		layer.W -= self.learning_rate * m_hat		
+		self.m.append(np.zeros(layer.bias.shape))
+		self.m[-1] = calc_prev(self.m[-1], self.beta, layer.dbias)
+		layer.W -= self.learning_rate * m_hat
 		
    
 def create_optimizer(name: str, learning_rate: float) -> Optimizer:
@@ -158,5 +153,4 @@ def create_optimizer(name: str, learning_rate: float) -> Optimizer:
 	if name not in optimizer:
 		raise ValueError(f"Invalid optimizer: {name}")
 	else:
-		
 		return optimizer[name](learning_rate)

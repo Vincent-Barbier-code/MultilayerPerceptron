@@ -16,6 +16,7 @@ def execute(args: argparse.Namespace) -> None:
         "predict": predict,
         "clean": clean,
         "benchmark": benchmark,
+        "visualize": visualize,
     }
 
     for arg, func in commands.items():
@@ -54,6 +55,9 @@ def arg_parsing() -> argparse.Namespace:
     parser.add_argument(
         "--early_stop", action="store_true", help="Early stop the training"
     )
+    parser.add_argument(
+        "--visualize", action="store_true", help="Visualize the data"
+    )
     parser.add_argument("--predict", action="store_true", help="Predict the validation data")
     parser.add_argument("--clean", action="store_true", help="Clean up temporary files")
     parser.add_argument("--benchmark", action="store_true", help="Benchmark the network network")
@@ -82,6 +86,18 @@ def split(args: argparse.Namespace) -> None:
     process.split.create_dfs(dataframe)
     exit(0)
 
+def visualize(args: argparse.Namespace) -> None:
+    """Visualize the data"""
+    print("Visualizing the data...")
+
+    import data_processing as process
+    from data_visualization import plot_data
+    
+    args.file = verif_file(args.file)
+    dataframe = process.extract.Extract(args.file).data
+    plot_data(dataframe)
+
+    exit(0)
 
 def train(args: argparse.Namespace) -> None:
     """Train the network network model"""
