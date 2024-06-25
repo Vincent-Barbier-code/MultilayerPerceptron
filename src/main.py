@@ -32,7 +32,7 @@ def train(train_data: pd.DataFrame) -> None:
     train_data = data_feature(train_data)
 
     network = Network(epoch=1000, learning_rate=0.0314, batch_size=16)
-    network.add_layer(24, "relu")
+    network.add_layer(24, "sigmoid")
     network.add_layer(24, "sigmoid")
     network.add_layer(24, "sigmoid")
     network.add_layer(2, "softmax")
