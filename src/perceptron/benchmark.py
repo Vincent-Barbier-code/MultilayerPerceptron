@@ -36,8 +36,8 @@ def benchmark(train_data: pd.DataFrame, validation_data: pd.DataFrame) -> None:
 	for network, name in zip(networks, ["SGD", "Momentum", "Adam", "Rmsprop"]):
 		np.random.seed(41)
 		network.train(train_data.values, train_true.values, test_data.values, test_true.values, opt=name)
-		print(f"{name} done.")
+		print(f"\033[1;32m{name}:\033[0m")
 		network.predict(validation_data.values, validation_true.values)
 	bench_plots(networks)
 	
-	print("Benchmark done.")
+	print("\033[1;36mBenchmark done.\033[0m")

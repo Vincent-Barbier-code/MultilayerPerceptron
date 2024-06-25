@@ -63,6 +63,7 @@ def splitDataset(path, cut=0.2, label=False, shuffle=False):
         `shuffle` : (boolean)
             wether we shuffle the dataset before the split operation or not
     """
+    random.seed(42)
     labels = None
     content = []
     csvfile = (

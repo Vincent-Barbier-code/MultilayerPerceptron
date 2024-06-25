@@ -29,7 +29,7 @@ def create_test_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.D
     """Create the test data"""
 
     dfB, dfM = sort_data(df)
-    frac = 0.7
+    frac = 0.8
 
     dfB_train = dfB.sample(frac=frac, random_state=41)
     dfM_train = dfM.sample(frac=frac, random_state=41)

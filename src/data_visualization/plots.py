@@ -47,5 +47,22 @@ def bench_plots(networks: list[Network]) -> None:
     
     plt.show()
         
-
+def metrics_plot(network: Network):
+    """Plot the metrics"""
     
+    fig, axs = plt.subplots(4, figsize=(10, 10), sharex=True, sharey=True)  
+    fig.suptitle("Metrics")
+    
+    axs[0].plot(range(0, len(network.f1_scores)), network.f1_scores, label="f1_score")
+    axs[0].set(xlabel="Epochs", ylabel="F1 score")
+
+    axs[1].plot(range(0, len(network.accuracies)), network.accuracies, label="accuracy")
+    axs[1].set(xlabel="Epochs", ylabel="Accuracy")
+
+    axs[2].plot(range(0, len(network.recalls)), network.recalls, label="recall")
+    axs[2].set(xlabel="Epochs", ylabel="Recall")
+
+    axs[3].plot(range(0, len(network.precisions)), network.precisions, label="precision")
+    axs[3].set(xlabel="Epochs", ylabel="Precision")
+
+    plt.show()

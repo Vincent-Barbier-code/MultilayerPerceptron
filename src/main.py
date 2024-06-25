@@ -11,6 +11,7 @@ from perceptron.benchmark import benchmark
 from terminal.arg_parsing import arg_parsing
 from terminal.arg_parsing import execute
 from data_visualization.plots import loss_plot
+from data_visualization.plots import metrics_plot
 from data_processing.split import create_test_data
 
 def train(train_data: pd.DataFrame) -> None:
@@ -31,13 +32,16 @@ def train(train_data: pd.DataFrame) -> None:
     train_data = data_feature(train_data)
 
     network = Network(epoch=1000, learning_rate=0.0314, batch_size=16)
-    network.add_layer(24, "sigmoid")
+    network.add_layer(24, "relu")
     network.add_layer(24, "sigmoid")
     network.add_layer(24, "sigmoid")
     network.add_layer(2, "softmax")
     network.train(train_data.values, train_true.values, test_data.values, test_true.values)
 
     loss_plot(network)
+    if arg_parsing().metrics:
+        metrics_plot(network)
+
     pickle.dump(network, open("../data/mymodels/network.pkl", "wb"))
     print("> saving model '../data/mymodels/network.pkl' to disk...")
 
@@ -56,7 +60,7 @@ def predict(validation_data: pd.DataFrame) -> None:
 def main() -> None:
     """Main function"""
 
-    np.random.seed()    
+    np.random.seed(41)    
 
     args = arg_parsing()
     execute(args)

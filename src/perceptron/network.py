@@ -1,11 +1,16 @@
 import numpy as np
 import alive_progress as ap
 from sklearn.utils import shuffle
+from sklearn.metrics import f1_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import accuracy_score
+from tabulate import tabulate
 
 from perceptron.layer import Layer
 from perceptron.optimizer import create_optimizer
 from terminal.arg_parsing import arg_parsing
-from perceptron.metrics import F1_score
+
 
 
 def one_hot(a: np.ndarray, num_classes: int):
@@ -28,6 +33,9 @@ class Network:
         self.losses = []
         self.val_losses = []
         self.accuracies = []
+        self.f1_scores = []
+        self.recalls = []
+        self.precisions = []
         self.patience = patience # early stopping
         self.best_network = None
     
@@ -129,6 +137,13 @@ class Network:
         self.losses.append(self.loss(P, Y_one))
         self.val_losses.append(self.loss(self.forward(X_test), Y_test_one))
 
+        if arg_parsing().metrics:
+            self.f1_scores.append(f1_score(Y, np.argmax(P, axis=1)))
+            self.accuracies.append(accuracy_score(Y, np.argmax(P, axis=1)))
+            self.recalls.append(recall_score(Y, np.argmax(P, axis=1)))
+            self.precisions.append(precision_score(Y, np.argmax(P, axis=1)))
+                        
+
     def shuffle_data(self, X: np.ndarray, Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Shuffle the data.
 
@@ -139,7 +154,7 @@ class Network:
         Returns:
             tuple[np.ndarray, np.ndarray]: The shuffled data."""
 
-        X, Y = shuffle(X, Y, random_state=24)
+        X, Y = shuffle(X, Y, random_state=41)
         return X, Y
 
     def get_batches(self, X: np.ndarray, Y: np.ndarray):
@@ -205,13 +220,20 @@ class Network:
         if self.best_network:
             self.layers = self.best_network
 
+        
+
     def predict(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Predict the labels of the data."""
 
         Y = Y.astype(int)
 
         Y_one = one_hot(Y, 2)
-        print("Loss: ", self.loss(self.forward(X), Y_one))
-        self.accuracy(X, Y)
-        F1_score(Y, self.forward(X))
-        print("F1 score: ", F1_score(Y, self.forward(X)))
+
+        table = [
+            ["Loss", self.loss(self.forward(X), Y_one)],
+            ["Accuracy", accuracy_score(Y, np.argmax(self.forward(X), axis=1))],
+            ["F1 score", f1_score(Y, np.argmax(self.forward(X), axis=1))],
+            ["Recall", recall_score(Y, np.argmax(self.forward(X), axis=1))],
+            ["Precision", precision_score(Y, np.argmax(self.forward(X), axis=1))]
+        ]
+        print(tabulate(table, headers=["Metric", "Value"], tablefmt="grid"))

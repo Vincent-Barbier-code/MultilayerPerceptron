@@ -61,6 +61,7 @@ def arg_parsing() -> argparse.Namespace:
     parser.add_argument("--predict", action="store_true", help="Predict the validation data")
     parser.add_argument("--clean", action="store_true", help="Clean up temporary files")
     parser.add_argument("--benchmark", action="store_true", help="Benchmark the network network")
+    parser.add_argument("--metrics", action="store_true", help="Print the metrics")
 
     return parser.parse_args()
 
@@ -104,7 +105,7 @@ def train(args: argparse.Namespace) -> None:
     print("Training the network network model...")
     args.file = verif_file(args.file)
     args.early_stop = False if args.early_stop == None else True
-    
+
     create_dirs(["../data/mymodels"])
 
 def predict(args: argparse.Namespace) -> None:

@@ -3,3 +3,4 @@ numpy
 pytest
 alive-progress
 seaborn
+tabulate
