@@ -38,20 +38,6 @@ def train_sklearn(train_data: pd.DataFrame) -> None:
 
 
 def predict_sklearn(validation_data: pd.DataFrame) -> None:
-    validation_true = data_true(validation_data.copy())
-    validation_features = data_feature(validation_data)
-
-    with open("../data/mymodels/sklearn_network.pkl", "rb") as file:
-        mlp = pickle.load(file)
-    mlppred = mlp.predict_proba(validation_features.to_numpy())
-    print(
-        f"Accuracy: {mlp.score(validation_features.to_numpy(), validation_true.to_numpy().ravel()):.2f}"
-    )
-    log_loss_value = log_loss(validation_true, mlppred)
-    print(f"Log loss: {log_loss_value:.2f}")
-
-
-def predict_sklearn(validation_data: pd.DataFrame) -> None:
     """Predict the validation data using the trained model
 
     Args:

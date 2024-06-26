@@ -87,6 +87,8 @@ def split(args: argparse.Namespace) -> None:
     if args.file is None:
         args.file = "../data/data.csv"
 
+    create_dirs(["../data/mymodels"])
+
     import data_processing as process
 
     dataframe = process.extract.Extract(args.file).data
@@ -112,8 +114,6 @@ def train(args: argparse.Namespace) -> None:
     """Train the network network model"""
     print("Training the network network model...")
     args.file = verif_file(args.file)
-
-    create_dirs(["../data/mymodels"])
 
 
 def predict(args: argparse.Namespace) -> None:
