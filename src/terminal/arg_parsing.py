@@ -4,6 +4,7 @@ import argparse
 import subprocess
 import os
 import inspect
+from data_processing import extract
 
 
 def execute(args: argparse.Namespace) -> None:
@@ -17,6 +18,8 @@ def execute(args: argparse.Namespace) -> None:
         "clean": clean,
         "benchmark": benchmark,
         "visualize": visualize,
+        "sklearn": sklearn,
+        "all": all,
     }
 
     for arg, func in commands.items():
@@ -62,6 +65,8 @@ def arg_parsing() -> argparse.Namespace:
         "--benchmark", action="store_true", help="Benchmark the network network"
     )
     parser.add_argument("--metrics", action="store_true", help="Print the metrics")
+    parser.add_argument("--sklearn", action="store_true", help="Use sklearn")
+    parser.add_argument("--all", action="store_true", help="Train, predict the data")
 
     return parser.parse_args()
 
@@ -107,7 +112,6 @@ def train(args: argparse.Namespace) -> None:
     """Train the network network model"""
     print("Training the network network model...")
     args.file = verif_file(args.file)
-    args.early_stop = False if args.early_stop == None else True
 
     create_dirs(["../data/mymodels"])
 
@@ -146,6 +150,22 @@ def benchmark(args: argparse.Namespace) -> None:
     create_dirs(["../data/mymodels"])
 
 
+def sklearn(args: argparse.Namespace) -> None:
+    """Use sklearn"""
+    print("Using sklearn...")
+
+    args.file = verif_file(args.file)
+    args.file2 = verif_file(args.file2, "../data/mydata/validation_data.csv")
+
+
+def all(args: argparse.Namespace) -> None:
+    """Train and predict the data"""
+    print("Training and predicting the data...")
+    args.file = verif_file(args.file)
+    args.file2 = verif_file(args.file2, "../data/mydata/validation_data.csv")
+    create_dirs(["../data/mymodels"])
+
+
 def verif_file(file, default="../data/mydata/train_data.csv") -> str:
     """Verify if the file exists"""
 
@@ -154,4 +174,5 @@ def verif_file(file, default="../data/mydata/train_data.csv") -> str:
         if not os.path.exists(file):
             print("No file found for training. Split the data first.")
             exit(1)
+    file = extract.Extract(file).data
     return file

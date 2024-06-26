@@ -14,6 +14,8 @@ from terminal.arg_parsing import execute
 from data_visualization.plots import loss_acc_plot
 from data_visualization.plots import metrics_plot
 from data_processing.split import create_test_data
+from test.sklearn_test import train_sklearn
+from test.sklearn_test import predict_sklearn
 
 
 def train(train_data: pd.DataFrame) -> None:
@@ -33,7 +35,7 @@ def train(train_data: pd.DataFrame) -> None:
     train_true = data_true(train_data.copy())
     train_data = data_feature(train_data)
 
-    network = Network(epoch=1000, learning_rate=0.0314, batch_size=16)
+    network = Network(epoch=1000, learning_rate=0.01, batch_size=16)
     network.add_layer(24, "sigmoid")
     network.add_layer(24, "sigmoid")
     network.add_layer(24, "sigmoid")
@@ -69,21 +71,38 @@ def main() -> None:
     args = arg_parsing()
     execute(args)
 
+    actions = {
+        "train": train,
+        "predict": predict,
+        "benchmark": benchmark,
+        "sklearn": train_sklearn,
+        "predict_sklearn": predict_sklearn,
+    }
+
+    train_data = args.file
+    validation_data = args.file2
+
     # Train data
     if args.train:
-        train_data = extract.Extract(args.file).data
-        train(train_data)
+        actions["train"](train_data)
 
     # Predict
-    if args.predict:
-        validation_data = extract.Extract(args.file).data
-        predict(validation_data)
+    elif args.predict:
+        actions["predict"](validation_data)
 
     # Benchmark
-    if args.benchmark:
-        train_data = extract.Extract(args.file).data
-        validation_data = extract.Extract(args.file2).data
-        benchmark(train_data, validation_data)
+    elif args.benchmark:
+        actions["benchmark"](train_data, validation_data)
+
+    # Sklearn
+    elif args.sklearn:
+        actions["sklearn"](train_data)
+        actions["predict_sklearn"](validation_data)
+
+    # Train and predict
+    elif args.all:
+        actions["train"](train_data)
+        actions["predict"](validation_data)
 
 
 if __name__ == "__main__":

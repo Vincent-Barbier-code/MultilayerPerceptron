@@ -27,6 +27,10 @@ This is a simple implementation of a Multilayer Perceptron (MLP) using Python an
    python main.py --predict or python main.py --predict --file /path/to/data_validation
 5. Run the following command to visualize the benchmark
    python main.py --benchmark --file /path/to/data_training --file2 /path/to/data_validation
+6. Run the following command to train the model and predict using the model
+   python main.py --all --file /path/to/data_training --file2 /path/to/data_validation
+7. Run the following to test on sklearn
+   python main.py --sklearn --file /path/to/data_training --file2 /path/to/data_validation
 
 For each of the above commands, you can specify the following optional arguments:
 - --file: The path to the dataset. Default is data.csv

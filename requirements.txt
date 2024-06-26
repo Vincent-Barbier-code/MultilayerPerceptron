@@ -4,3 +4,4 @@ pytest
 alive-progress
 seaborn
 tabulate
+sklearn

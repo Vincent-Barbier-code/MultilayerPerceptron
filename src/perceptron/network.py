@@ -150,7 +150,12 @@ class Network:
 
         Returns:
             tuple[np.ndarray, np.ndarray]: The batch of data and labels."""
-        X, Y = shuffle(X, Y, random_state=41)
+
+        X, Y = shuffle(
+            X,
+            Y,
+            random_state=41,
+        )
         for i in range(0, len(X), self.batch_size):
             yield X[i : i + self.batch_size], Y[i : i + self.batch_size]
 
@@ -163,7 +168,7 @@ class Network:
         Returns:
             bool: If the network network should stop early.
         """
-        if arg_parsing().early_stop:
+        if arg_parsing().early_stop or arg_parsing().all:
             if eS.early_stop(self, self.val_losses):
                 self.best_network = eS.best_network
                 print("Early stopping")

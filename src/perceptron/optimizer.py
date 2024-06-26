@@ -24,7 +24,7 @@ class EarlyStop:
         """
 
         min_val_loss = min(val_losses)
-        if val_losses[-1] > min_val_loss:
+        if val_losses[-1] >= min_val_loss:
             self.cmp += 1
         if val_losses[-1] == min_val_loss:
             self.cmp = 0
