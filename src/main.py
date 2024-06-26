@@ -1,4 +1,5 @@
 """Main module"""
+
 import numpy as np
 import pandas as pd
 import pickle
@@ -10,9 +11,10 @@ from perceptron.network import Network
 from perceptron.benchmark import benchmark
 from terminal.arg_parsing import arg_parsing
 from terminal.arg_parsing import execute
-from data_visualization.plots import loss_plot
+from data_visualization.plots import loss_acc_plot
 from data_visualization.plots import metrics_plot
 from data_processing.split import create_test_data
+
 
 def train(train_data: pd.DataFrame) -> None:
     """Train the network network
@@ -23,7 +25,7 @@ def train(train_data: pd.DataFrame) -> None:
     Returns:
         None: None.
     """
-    
+
     # Test data
     test_data, test_true, train_data = create_test_data(train_data)
 
@@ -36,9 +38,11 @@ def train(train_data: pd.DataFrame) -> None:
     network.add_layer(24, "sigmoid")
     network.add_layer(24, "sigmoid")
     network.add_layer(2, "softmax")
-    network.train(train_data.values, train_true.values, test_data.values, test_true.values)
+    network.train(
+        train_data.values, train_true.values, test_data.values, test_true.values
+    )
 
-    loss_plot(network)
+    loss_acc_plot(network)
     if arg_parsing().metrics:
         metrics_plot(network)
 
@@ -60,7 +64,7 @@ def predict(validation_data: pd.DataFrame) -> None:
 def main() -> None:
     """Main function"""
 
-    np.random.seed(41)    
+    np.random.seed(41)
 
     args = arg_parsing()
     execute(args)

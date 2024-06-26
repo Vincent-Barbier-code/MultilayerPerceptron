@@ -11,10 +11,12 @@ def sort_data(dataframe: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     dfM = dataframe.loc[dataframe[dataframe.columns[1]] == "M"]
     return dfB, dfM
 
+
 def set_random_data(
-        dataframe: pd.DataFrame, frac: float = 0.8
+    dataframe: pd.DataFrame, frac: float = 0.8
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    
+    """Set random data for training and validation"""
+
     dfB, dfM = sort_data(dataframe)
 
     dfB_train = dfB.sample(frac=frac)
@@ -26,7 +28,7 @@ def set_random_data(
     train_data = pd.concat([dfB_train, dfM_train])
     validation_data = pd.concat([dfB_validation, dfM_validation])
 
-    train_data =  dataframe.sample(frac=1).reset_index(drop=True)
-    validation_data = dataframe.sample(frac=1).reset_index(drop=True)
+    train_data = train_data.sample(frac=1).reset_index(drop=True)
+    validation_data = validation_data.sample(frac=1).reset_index(drop=True)
 
     return train_data, validation_data

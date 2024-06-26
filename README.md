@@ -32,6 +32,9 @@ For each of the above commands, you can specify the following optional arguments
 - --file: The path to the dataset. Default is data.csv
 - --early_stop: if set, the training will stop when the validation loss starts increasing
 
+For the command train, you can specify an other optional arguments:
+- --metrics: if set, the model will print the metrics for each epoch
+
 To see a portion of the data set, you can run the following command:
    python main.py --visualize --file /path/to/dataset
 

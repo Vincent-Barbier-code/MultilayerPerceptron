@@ -207,7 +207,7 @@ class Layer:
         Returns:
             np.ndarray: The gradient of the loss function.
         """
-        
+
         activation = None
         match self.f_activation:
             case "sigmoid":
@@ -221,13 +221,11 @@ class Layer:
             case _:
                 raise ValueError(f"Invalid activation function: {self.f_activation}")
 
-        
         ngradient = gradient * activation
         self.dW = np.dot(self.input.T, ngradient)
         self.dbias = np.sum(ngradient, axis=0)
 
         dgradient = np.dot(ngradient, self.W.T)
         optimizer.update(self)
-
 
         return dgradient

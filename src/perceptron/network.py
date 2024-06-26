@@ -12,10 +12,10 @@ from perceptron.optimizer import create_optimizer
 from terminal.arg_parsing import arg_parsing
 
 
-
 def one_hot(a: np.ndarray, num_classes: int):
     """Convert an array of integers into a one-hot encoded matrix."""
     return np.squeeze(np.eye(num_classes)[a.reshape(-1)]).astype(int)
+
 
 class Network:
 
@@ -33,12 +33,13 @@ class Network:
         self.losses = []
         self.val_losses = []
         self.accuracies = []
+        self.val_accuracies = []
         self.f1_scores = []
         self.recalls = []
         self.precisions = []
-        self.patience = patience # early stopping
+        self.patience = patience  # early stopping
         self.best_network = None
-    
+
     def add_layer(
         self,
         Next: int = 0,
@@ -79,10 +80,10 @@ class Network:
 
         loss = -np.mean(
             Y * np.log(P + epsilon) + (1 - Y) * np.log(1 - P + epsilon),
-        ) 
+        )
         return loss
-    
-    def backward(self, P: np.ndarray, Y: np.ndarray, opt:str) -> None:
+
+    def backward(self, P: np.ndarray, Y: np.ndarray, opt: str) -> None:
         """Backward propagation through the network network.
 
         Args:
@@ -96,27 +97,13 @@ class Network:
         for layer in reversed(self.layers):
             gradient = layer.backward(optimizer, gradient)
 
-    def accuracy(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """Compute the accuracy of the network network.
-
-        Args:
-            X (np.ndarray): The Z data.
-            Y (np.ndarray): The true labels.
-
-        Returns:
-            float: The accuracy of the network network."""
-
-        P = self.forward(X)
-        P = np.argmax(P, axis=1)
-        Y = Y.reshape(-1)
-        accuracy = sum(P == Y) / len(Y)
-        print(f"Accuracy : {accuracy}")
-
-    def visualize(self, X:np.ndarray, Y:np.ndarray, X_test:np.ndarray, Y_test:np.ndarray) -> None:
+    def visualize(
+        self, X: np.ndarray, Y: np.ndarray, X_test: np.ndarray, Y_test: np.ndarray
+    ) -> None:
         """Visualize the network network."""
 
         bench = arg_parsing().benchmark
-        
+
         epoch = len(self.losses)
         if epoch == 0 and not bench:
             print("x_train shape : ", X.shape)
@@ -129,33 +116,29 @@ class Network:
         # loss test
         Y_test = Y_test.astype(int)
         Y_test_one = one_hot(Y_test, 2)
-        
+
         if not bench:
-            print("epoch ", epoch + 1, "/", self.epoch, "- loss", "{:.4f}".format(self.loss(P, Y_one)), 
-                  "- val_loss", "{:.4f}".format(self.loss(self.forward(X_test), Y_test_one)))
-        
+            print(
+                "epoch ",
+                epoch + 1,
+                "/",
+                self.epoch,
+                "- loss",
+                "{:.4f}".format(self.loss(P, Y_one)),
+                "- val_loss",
+                "{:.4f}".format(self.loss(self.forward(X_test), Y_test_one)),
+            )
+
         self.losses.append(self.loss(P, Y_one))
         self.val_losses.append(self.loss(self.forward(X_test), Y_test_one))
 
-        if arg_parsing().metrics:
-            self.f1_scores.append(f1_score(Y, np.argmax(P, axis=1)))
-            self.accuracies.append(accuracy_score(Y, np.argmax(P, axis=1)))
-            self.recalls.append(recall_score(Y, np.argmax(P, axis=1)))
-            self.precisions.append(precision_score(Y, np.argmax(P, axis=1)))
-                        
-
-    def shuffle_data(self, X: np.ndarray, Y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """Shuffle the data.
-
-        Args:
-            X (np.ndarray): The Z data.
-            Y (np.ndarray): The true labels.
-
-        Returns:
-            tuple[np.ndarray, np.ndarray]: The shuffled data."""
-
-        X, Y = shuffle(X, Y, random_state=41)
-        return X, Y
+        self.f1_scores.append(f1_score(Y, np.argmax(P, axis=1)))
+        self.accuracies.append(accuracy_score(Y, np.argmax(P, axis=1)))
+        self.val_accuracies.append(
+            accuracy_score(Y_test, np.argmax(self.forward(X_test), axis=1))
+        )
+        self.recalls.append(recall_score(Y, np.argmax(P, axis=1)))
+        self.precisions.append(precision_score(Y, np.argmax(P, axis=1)))
 
     def get_batches(self, X: np.ndarray, Y: np.ndarray):
         """Get the batches of data.
@@ -167,7 +150,7 @@ class Network:
 
         Returns:
             tuple[np.ndarray, np.ndarray]: The batch of data and labels."""
-        X, Y = self.shuffle_data(X, Y)
+        X, Y = shuffle(X, Y, random_state=41)
         for i in range(0, len(X), self.batch_size):
             yield X[i : i + self.batch_size], Y[i : i + self.batch_size]
 
@@ -176,7 +159,7 @@ class Network:
 
         Args:
             network (Network): The network network to keep.
-        
+
         Returns:
             bool: If the network network should stop early.
         """
@@ -186,10 +169,17 @@ class Network:
                 print("Early stopping")
                 return True
         return False
-        
-    def train(self, X: np.ndarray, Y: np.ndarray, X_test:np.ndarray, Y_test:np.ndarray, opt:str="SGD") -> None:
+
+    def train(
+        self,
+        X: np.ndarray,
+        Y: np.ndarray,
+        X_test: np.ndarray,
+        Y_test: np.ndarray,
+        opt: str = "SGD",
+    ) -> None:
         """Train the network network.
-        
+
         Args:
             X (np.ndarray): The Z data.
             Y (np.ndarray): The true labels.
@@ -201,29 +191,32 @@ class Network:
         """
 
         from perceptron.optimizer import EarlyStop
-        
+
         # Convert Y["0", "1", ...] into float
         Y = Y.astype(int)
         eS = EarlyStop(self.patience)
 
         with ap.alive_bar(self.epoch, title="Training", enrich_print=False) as bar:
             for _ in range(self.epoch):
-                    for X_batch, Y_batch in self.get_batches(X, Y):
-                        P = self.forward(X_batch)
-                        self.backward(P, Y_batch, opt)
+                for X_batch, Y_batch in self.get_batches(X, Y):
+                    P = self.forward(X_batch)
+                    self.backward(P, Y_batch, opt)
 
-                    self.visualize(X, Y, X_test, Y_test)
-                    if self.keep_best_network(eS):
-                        break
-                    bar()
-        
+                self.visualize(X, Y, X_test, Y_test)
+                if self.keep_best_network(eS):
+                    break
+                bar()
+
         if self.best_network:
             self.layers = self.best_network
 
-        
-
     def predict(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """Predict the labels of the data."""
+        """Predict the labels of the data.
+
+        Args:
+            X (np.ndarray): The Z data.
+            Y (np.ndarray): The true labels.
+        """
 
         Y = Y.astype(int)
 
@@ -234,6 +227,6 @@ class Network:
             ["Accuracy", accuracy_score(Y, np.argmax(self.forward(X), axis=1))],
             ["F1 score", f1_score(Y, np.argmax(self.forward(X), axis=1))],
             ["Recall", recall_score(Y, np.argmax(self.forward(X), axis=1))],
-            ["Precision", precision_score(Y, np.argmax(self.forward(X), axis=1))]
+            ["Precision", precision_score(Y, np.argmax(self.forward(X), axis=1))],
         ]
         print(tabulate(table, headers=["Metric", "Value"], tablefmt="grid"))
