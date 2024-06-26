@@ -79,30 +79,27 @@ def main() -> None:
         "predict_sklearn": predict_sklearn,
     }
 
-    train_data = args.file
-    validation_data = args.file2
-
     # Train data
     if args.train:
-        actions["train"](train_data)
+        actions["train"](args.file)
 
     # Predict
     elif args.predict:
-        actions["predict"](validation_data)
+        actions["predict"](args.file)
 
     # Benchmark
     elif args.benchmark:
-        actions["benchmark"](train_data, validation_data)
+        actions["benchmark"](args.file, args.file2)
 
     # Sklearn
     elif args.sklearn:
-        actions["sklearn"](train_data)
-        actions["predict_sklearn"](validation_data)
+        actions["sklearn"](args.file)
+        actions["predict_sklearn"](args.file2)
 
     # Train and predict
     elif args.all:
-        actions["train"](train_data)
-        actions["predict"](validation_data)
+        actions["train"](args.file)
+        actions["predict"](args.file2)
 
 
 if __name__ == "__main__":
